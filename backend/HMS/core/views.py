@@ -113,54 +113,5 @@ class BaseLoggedInViewSet(viewsets.ViewSet):
         )
 
 
-class HospitalViewSet(BaseLoggedInViewSet):
-    """
-    Hospital management ViewSet.
-
-    Only admins can access.
-    Currently only list and create can be explicitly enabled.
-    """
-
-    required_roles = ["admin"]
-
-    def list(self, request: Request):
-        """
-        GET /hospitals/ — list hospitals the admin can access.
-        """
-        # Multi-tenant: admins can only see their hospital
-        hospital_id = getattr(request.user.baseuserprofile, "hospital_id", None)
-        if hospital_id:
-            hospitals = Hospital.objects.filter(id=hospital_id)
-        else:
-            hospitals = Hospital.objects.none()
-
-        serializer = HospitalSerializer(hospitals, many=True)
-        return Response(serializer.data)
-
-    def create(self, request: Request):
-        """
-        POST /hospitals/ — create a new hospital.
-        """
-        serializer = HospitalSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        hospital = serializer.save()
-        return Response(
-            HospitalSerializer(hospital).data, status=status.HTTP_201_CREATED
-        )
-
-    def retrieve(self, request: Request, pk=None):
-        """
-        GET /hospitals/<pk>/ — retrieve a hospital if admin belongs to it.
-        """
-        try:
-            hospital_id = getattr(request.user.baseuserprofile, "hospital_id", None)
-            if hospital_id != UUID(pk):
-                return Response(
-                    {"detail": "Access denied"}, status=status.HTTP_403_FORBIDDEN
-                )
-
-            hospital = Hospital.objects.get(pk=pk)
-            serializer = HospitalSerializer(hospital)
-            return Response(serializer.data)
-        except Hospital.DoesNotExist:
-            return Response({"detail": "Not found"}, status=status.HTTP_404_NOT_FOUND)
+from core.modules.views.hospital import HospitalViewSet
+from core.modules.views.operating_room import OperatingRoomViewSet
