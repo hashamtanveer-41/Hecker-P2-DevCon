@@ -1,16 +1,21 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { HospitalProvider } from './context/HospitalContext';
+import { WebSocketProvider } from './context/WebSocketContext.jsx';
+import AppRoutes from './routes/AppRoutes';
 
 function App() {
- 
-  return (
-    <>
-      <div>
-      </div>
-    </>
-  )
+    return (
+        <BrowserRouter>
+            <AuthProvider>
+                <HospitalProvider>
+                    <WebSocketProvider>
+                        <AppRoutes />
+                    </WebSocketProvider>
+                </HospitalProvider>
+            </AuthProvider>
+        </BrowserRouter>
+    );
 }
 
-export default App
+export default App;
