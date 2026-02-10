@@ -1,9 +1,15 @@
 from rest_framework.request import Request
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import RoleTokenObtainPairSerializer
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from jwt_auth.permissions import HasHospitalHeader, IsRole
+from .permissions import HasHospitalHeader, IsRole
+
+
+class RoleTokenObtainPairView(TokenObtainPairView):
+    serializer_class = RoleTokenObtainPairSerializer
 
 
 class MyInfoView(APIView):
