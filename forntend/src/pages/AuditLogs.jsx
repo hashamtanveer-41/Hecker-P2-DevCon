@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useHospital } from '../context/HospitalContext';
-import axiosInstance from '../api/axios';
-import { API_ENDPOINTS } from '../utils/constants';
+import { syncAPI } from '../api/sync.api';
+// Backend imports (uncomment when backend is ready):
+// import axiosInstance from '../api/axios';
+// import { API_ENDPOINTS } from '../utils/constants';
 
 const AuditLogs = () => {
     const { hospitalId } = useHospital();
@@ -25,16 +27,19 @@ const AuditLogs = () => {
     const fetchLogs = async () => {
         setLoading(true);
         try {
-            // Build query params
-            const params = new URLSearchParams();
-            if (filters.action) params.append('action', filters.action);
-            if (filters.user) params.append('user', filters.user);
-            if (filters.startDate) params.append('start_date', filters.startDate);
-            if (filters.endDate) params.append('end_date', filters.endDate);
+            // Using mock data API
+            const response = await syncAPI.getAuditLogs(filters);
+            setLogs(response.data || response);
 
-            const url = `${API_ENDPOINTS.AUDIT_LOGS}?${params.toString()}`;
-            const response = await axiosInstance.get(url);
-            setLogs(response.data);
+            // Backend implementation (uncomment when backend is ready):
+            // const params = new URLSearchParams();
+            // if (filters.action) params.append('action', filters.action);
+            // if (filters.user) params.append('user', filters.user);
+            // if (filters.startDate) params.append('start_date', filters.startDate);
+            // if (filters.endDate) params.append('end_date', filters.endDate);
+            // const url = `${API_ENDPOINTS.AUDIT_LOGS}?${params.toString()}`;
+            // const response = await axiosInstance.get(url);
+            // setLogs(response.data);
         } catch (error) {
             console.error('Error fetching audit logs:', error);
         } finally {

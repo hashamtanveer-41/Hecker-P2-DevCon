@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useHospital } from '../context/HospitalContext';
-import axiosInstance from '../api/axios';
-import { API_ENDPOINTS, PRIORITY_LEVELS, REQUEST_STATUS } from '../utils/constants';
+import { surgeryAPI } from '../api/surgery.api';
+import { PRIORITY_LEVELS, REQUEST_STATUS } from '../utils/constants';
 
 const SurgeryRequests = () => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
@@ -21,8 +21,8 @@ const SurgeryRequests = () => {
 
     const fetchRequests = async () => {
         try {
-            const response = await axiosInstance.get(API_ENDPOINTS.SURGERY_REQUESTS);
-            setRequests(response.data);
+            const response = await surgeryAPI.getAll();
+            setRequests(response.data || response);
         } catch (error) {
             console.error('Error fetching surgery requests:', error);
         }
@@ -43,8 +43,14 @@ const SurgeryRequests = () => {
                 equipment_required: data.equipment_required.split(',').map(eq => eq.trim()),
             };
 
-            const response = await axiosInstance.post(API_ENDPOINTS.SURGERY_REQUESTS, payload);
-            setRequests([...requests, response.data]);
+            // Using mock data API
+            const response = await surgeryAPI.create(payload);
+            setRequests([...requests, response]);
+
+            // Backend implementation (uncomment when backend is ready):
+            // const response = await axiosInstance.post(API_ENDPOINTS.SURGERY_REQUESTS, payload);
+            // setRequests([...requests, response.data]);
+
             reset();
             setShowForm(false);
             alert('Surgery request created successfully!');
@@ -58,9 +64,15 @@ const SurgeryRequests = () => {
 
     const handleApprove = async (id) => {
         try {
-            await axiosInstance.post(API_ENDPOINTS.SURGERY_REQUEST_APPROVE(id));
+            // Using mock data API
+            await surgeryAPI.approve(id);
             alert('Surgery request approved!');
             fetchRequests(); // Refresh list
+
+            // Backend implementation (uncomment when backend is ready):
+            // const response = await axiosInstance.post(API_ENDPOINTS.SURGERY_REQUEST_APPROVE(id));
+            // alert('Surgery request approved!');
+            // fetchRequests(); // Refresh list
         } catch (error) {
             console.error('Error approving request:', error);
             alert('Failed to approve request');

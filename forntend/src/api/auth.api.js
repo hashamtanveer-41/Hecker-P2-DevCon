@@ -3,10 +3,28 @@
 import axiosInstance from './axios';
 import { API_ENDPOINTS } from '../utils/constants';
 
+// DEVELOPMENT MODE: Set to true to bypass login
+const BYPASS_LOGIN = true;
+
 export const authAPI = {
     // Mock WebAuthn Login (for hackathon demo)
     login: async (username) => {
         try {
+            // BYPASS LOGIN FOR DEVELOPMENT/TESTING
+            if (BYPASS_LOGIN) {
+                return {
+                    success: true,
+                    token: 'mock-jwt-token-dev-' + Date.now(),
+                    user: {
+                        id: 1,
+                        username: username || 'demo_user',
+                        role: 'HOSPITAL_ADMIN',
+                        name: username || 'Demo User',
+                        email: (username || 'demo') + '@hospital.com',
+                    },
+                };
+            }
+
             // In real implementation, this would call WebAuthn API
             // For hackathon, we'll mock it
             const response = await axiosInstance.post(API_ENDPOINTS.AUTH_LOGIN, {

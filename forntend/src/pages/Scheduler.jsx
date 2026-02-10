@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { useHospital } from '../context/HospitalContext';
-import axiosInstance from '../api/axios';
-import { API_ENDPOINTS } from '../utils/constants';
+import { schedulerAPI } from '../api/scheduler.api';
+// Backend imports (uncomment when backend is ready):
+// import axiosInstance from '../api/axios';
+// import { API_ENDPOINTS } from '../utils/constants';
 
 const Scheduler = () => {
     const { hospitalId } = useHospital();
@@ -20,9 +22,15 @@ const Scheduler = () => {
         setResult(null);
 
         try {
-            const response = await axiosInstance.post(API_ENDPOINTS.SCHEDULER_RUN);
-            setResult(response.data);
+            // Using mock data API
+            const response = await schedulerAPI.run();
+            setResult(response);
             alert('Scheduler completed successfully!');
+
+            // Backend implementation (uncomment when backend is ready):
+            // const response = await axiosInstance.post(API_ENDPOINTS.SCHEDULER_RUN);
+            // setResult(response.data);
+            // alert('Scheduler completed successfully!');
         } catch (error) {
             console.error('Error running scheduler:', error);
             alert('Failed to run scheduler');
@@ -43,11 +51,17 @@ const Scheduler = () => {
         setLoading(true);
 
         try {
-            const response = await axiosInstance.post(API_ENDPOINTS.SCHEDULER_EMERGENCY, {
-                surgery_request_id: parseInt(surgeryId),
-            });
-            setResult(response.data);
+            // Using mock data API
+            const response = await schedulerAPI.emergency(parseInt(surgeryId));
+            setResult(response);
             alert('Emergency scheduled successfully!');
+
+            // Backend implementation (uncomment when backend is ready):
+            // const response = await axiosInstance.post(API_ENDPOINTS.SCHEDULER_EMERGENCY, {
+            //     surgery_request_id: parseInt(surgeryId),
+            // });
+            // setResult(response.data);
+            // alert('Emergency scheduled successfully!');
         } catch (error) {
             console.error('Error scheduling emergency:', error);
             alert('Failed to schedule emergency');

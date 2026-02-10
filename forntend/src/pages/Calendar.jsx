@@ -1,9 +1,11 @@
 // src/pages/Calendar.jsx
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useHospital } from '../context/HospitalContext';
-import axiosInstance from '../api/axios';
-import { API_ENDPOINTS } from '../utils/constants';
+import { schedulerAPI } from '../api/scheduler.api';
+// Backend imports (uncomment when backend is ready):
+// import axiosInstance from '../api/axios';
+// import { API_ENDPOINTS } from '../utils/constants';
 
 const Calendar = () => {
     const { hospitalId } = useHospital();
@@ -12,27 +14,34 @@ const Calendar = () => {
     const [loading, setLoading] = useState(false);
     const [viewMode, setViewMode] = useState('day'); // 'day' or 'week'
 
-    useEffect(() => {
-        if (hospitalId && selectedDate) {
-            fetchSchedule();
-        }
-    }, [hospitalId, selectedDate, viewMode]);
-
-    const fetchSchedule = async () => {
+    const fetchSchedule = useCallback(async () => {
         setLoading(true);
         try {
-            const endpoint = viewMode === 'day'
-                ? `${API_ENDPOINTS.CALENDAR_DAY}?date=${selectedDate}`
-                : `${API_ENDPOINTS.CALENDAR_WEEK}?start_date=${selectedDate}`;
+            // Using mock data API
+            const response = viewMode === 'day'
+                ? await schedulerAPI.getCalendarDay(selectedDate)
+                : await schedulerAPI.getCalendarWeek(selectedDate);
 
-            const response = await axiosInstance.get(endpoint);
-            setSchedules(response.data);
+            setSchedules(response.schedules || response.data || []);
+
+            // Backend implementation (uncomment when backend is ready):
+            // const endpoint = viewMode === 'day'
+            //     ? `${API_ENDPOINTS.CALENDAR_DAY}?date=${selectedDate}`
+            //     : `${API_ENDPOINTS.CALENDAR_WEEK}?start_date=${selectedDate}`;
+            // const response = await axiosInstance.get(endpoint);
+            // setSchedules(response.data);
         } catch (error) {
             console.error('Error fetching schedule:', error);
         } finally {
             setLoading(false);
         }
-    };
+    }, [selectedDate, viewMode]);
+
+    useEffect(() => {
+        if (hospitalId && selectedDate) {
+            fetchSchedule();
+        }
+    }, [hospitalId, selectedDate, viewMode, fetchSchedule]);
 
     const formatTime = (datetime) => {
         if (!datetime) return 'N/A';

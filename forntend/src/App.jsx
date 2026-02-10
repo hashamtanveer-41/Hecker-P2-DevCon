@@ -1,9 +1,7 @@
-// src/App.jsx
-
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { HospitalProvider } from './context/HospitalProvider';
-import { WebSocketProvider } from './context/WebSocketContext';
+import { HospitalProvider } from './context/HospitalContext';
+import { WebSocketProvider } from './context/WebSocketContext.jsx';
 import AppRoutes from './routes/AppRoutes';
 
 function App() {

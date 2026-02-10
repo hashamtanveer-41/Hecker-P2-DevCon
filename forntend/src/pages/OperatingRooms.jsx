@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useHospital } from '../context/HospitalContext';
-import axiosInstance from '../api/axios';
-import { API_ENDPOINTS } from '../utils/constants';
+import { orAPI } from '../api/or.api';
+// Backend imports (uncomment when backend is ready):
+// import axiosInstance from '../api/axios';
+// import { API_ENDPOINTS } from '../utils/constants';
 
 const OperatingRooms = () => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
@@ -21,8 +23,13 @@ const OperatingRooms = () => {
 
     const fetchOperatingRooms = async () => {
         try {
-            const response = await axiosInstance.get(API_ENDPOINTS.OPERATING_ROOMS);
-            setOperatingRooms(response.data);
+            // Using mock data API
+            const response = await orAPI.getAll();
+            setOperatingRooms(response.data || response);
+
+            // Backend implementation (uncomment when backend is ready):
+            // const response = await axiosInstance.get(API_ENDPOINTS.OPERATING_ROOMS);
+            // setOperatingRooms(response.data);
         } catch (error) {
             console.error('Error fetching operating rooms:', error);
         }
@@ -41,8 +48,14 @@ const OperatingRooms = () => {
                 capabilities: data.capabilities.split(',').map(cap => cap.trim()),
             };
 
-            const response = await axiosInstance.post(API_ENDPOINTS.OPERATING_ROOMS, payload);
-            setOperatingRooms([...operatingRooms, response.data]);
+            // Using mock data API
+            const response = await orAPI.create(payload);
+            setOperatingRooms([...operatingRooms, response]);
+
+            // Backend implementation (uncomment when backend is ready):
+            // const response = await axiosInstance.post(API_ENDPOINTS.OPERATING_ROOMS, payload);
+            // setOperatingRooms([...operatingRooms, response.data]);
+
             reset();
             setShowForm(false);
             alert('Operating Room created successfully!');

@@ -1,4 +1,5 @@
 // src/context/HospitalContext.jsx
+/* eslint-disable react-refresh/only-export-components */
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { storage } from '../utils/storage';
@@ -6,14 +7,24 @@ import { storage } from '../utils/storage';
 const HospitalContext = createContext(null);
 
 export const HospitalProvider = ({ children }) => {
-    const [hospitalId, setHospitalIdState] = useState(null);
+    const [hospitalId, setHospitalIdState] = useState(() => {
+        // Initialize state from storage
+        return storage.getHospitalId();
+    });
     const [hospitalName, setHospitalName] = useState('');
 
-    // Load hospital ID from storage on mount
+    // Auto-select first hospital on mount if none is selected
     useEffect(() => {
-        const savedHospitalId = storage.getHospitalId();
-        if (savedHospitalId) {
-            setHospitalIdState(savedHospitalId);
+        if (!hospitalId) {
+            // Import mock data here to avoid circular dependencies
+            import('../api/mockData').then(({ mockHospitals }) => {
+                if (mockHospitals && mockHospitals.length > 0) {
+                    const firstHospital = mockHospitals[0];
+                    setHospitalIdState(firstHospital.id);
+                    setHospitalName(firstHospital.name);
+                    storage.setHospitalId(firstHospital.id);
+                }
+            });
         }
     }, []);
 
@@ -46,3 +57,4 @@ export const useHospital = () => {
     }
     return context;
 };
+

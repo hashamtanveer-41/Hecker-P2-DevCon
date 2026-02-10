@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useHospital } from '../context/HospitalContext';
-import axiosInstance from '../api/axios';
-import { API_ENDPOINTS } from '../utils/constants';
+import { staffAPI } from '../api/staff.api';
+// Backend imports (uncomment when backend is ready):
+// import axiosInstance from '../api/axios';
+// import { API_ENDPOINTS } from '../utils/constants';
 
 const Staff = () => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
@@ -21,8 +23,13 @@ const Staff = () => {
 
     const fetchStaff = async () => {
         try {
-            const response = await axiosInstance.get(API_ENDPOINTS.STAFF);
-            setStaff(response.data);
+            // Using mock data API
+            const response = await staffAPI.getAll();
+            setStaff(response.data || response);
+
+            // Backend implementation (uncomment when backend is ready):
+            // const response = await axiosInstance.get(API_ENDPOINTS.STAFF);
+            // setStaff(response.data);
         } catch (error) {
             console.error('Error fetching staff:', error);
         }
@@ -41,8 +48,14 @@ const Staff = () => {
                 max_hours_per_day: parseInt(data.max_hours_per_day),
             };
 
-            const response = await axiosInstance.post(API_ENDPOINTS.STAFF, payload);
-            setStaff([...staff, response.data]);
+            // Using mock data API
+            const response = await staffAPI.create(payload);
+            setStaff([...staff, response]);
+
+            // Backend implementation (uncomment when backend is ready):
+            // const response = await axiosInstance.post(API_ENDPOINTS.STAFF, payload);
+            // setStaff([...staff, response.data]);
+
             reset();
             setShowForm(false);
             alert('Staff member created successfully!');

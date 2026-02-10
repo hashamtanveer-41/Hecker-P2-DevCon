@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useHospital } from '../context/HospitalContext';
-import axiosInstance from '../api/axios';
-import { API_ENDPOINTS } from '../utils/constants';
+import { equipmentAPI } from '../api/equipment.api';
+// Backend imports (uncomment when backend is ready):
+// import axiosInstance from '../api/axios';
+// import { API_ENDPOINTS } from '../utils/constants';
 
 const Equipment = () => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
@@ -21,8 +23,13 @@ const Equipment = () => {
 
     const fetchEquipment = async () => {
         try {
-            const response = await axiosInstance.get(API_ENDPOINTS.EQUIPMENT);
-            setEquipment(response.data);
+            // Using mock data API
+            const response = await equipmentAPI.getAll();
+            setEquipment(response.data || response);
+
+            // Backend implementation (uncomment when backend is ready):
+            // const response = await axiosInstance.get(API_ENDPOINTS.EQUIPMENT);
+            // setEquipment(response.data);
         } catch (error) {
             console.error('Error fetching equipment:', error);
         }
@@ -41,8 +48,14 @@ const Equipment = () => {
                 sterilization_cycle_hours: parseInt(data.sterilization_cycle_hours),
             };
 
-            const response = await axiosInstance.post(API_ENDPOINTS.EQUIPMENT, payload);
-            setEquipment([...equipment, response.data]);
+            // Using mock data API
+            const response = await equipmentAPI.create(payload);
+            setEquipment([...equipment, response]);
+
+            // Backend implementation (uncomment when backend is ready):
+            // const response = await axiosInstance.post(API_ENDPOINTS.EQUIPMENT, payload);
+            // setEquipment([...equipment, response.data]);
+
             reset();
             setShowForm(false);
             alert('Equipment created successfully!');
@@ -56,9 +69,15 @@ const Equipment = () => {
 
     const handleSterilize = async (id) => {
         try {
-            await axiosInstance.post(API_ENDPOINTS.EQUIPMENT_STERILIZE(id));
+            // Using mock data API
+            await equipmentAPI.sterilize(id);
             alert('Sterilization started!');
             fetchEquipment(); // Refresh list
+
+            // Backend implementation (uncomment when backend is ready):
+            // await axiosInstance.post(API_ENDPOINTS.EQUIPMENT_STERILIZE(id));
+            // alert('Sterilization started!');
+            // fetchEquipment(); // Refresh list
         } catch (error) {
             console.error('Error sterilizing equipment:', error);
             alert('Failed to start sterilization');

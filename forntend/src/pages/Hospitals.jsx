@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useHospital } from '../context/HospitalContext';
-import axiosInstance from '../api/axios';
-import { API_ENDPOINTS } from '../utils/constants';
+import { hospitalAPI } from '../api/hospital.api';
+// Backend imports (uncomment when backend is ready):
+// import axiosInstance from '../api/axios';
+// import { API_ENDPOINTS } from '../utils/constants';
 
 const Hospitals = () => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
@@ -19,8 +21,13 @@ const Hospitals = () => {
 
     const fetchHospitals = async () => {
         try {
-            const response = await axiosInstance.get(API_ENDPOINTS.HOSPITALS);
-            setHospitals(response.data);
+            // Using mock data API
+            const response = await hospitalAPI.getAll();
+            setHospitals(response.data || response);
+
+            // Backend implementation (uncomment when backend is ready):
+            // const response = await axiosInstance.get(API_ENDPOINTS.HOSPITALS);
+            // setHospitals(response.data);
         } catch (error) {
             console.error('Error fetching hospitals:', error);
         }
@@ -29,8 +36,14 @@ const Hospitals = () => {
     const onSubmit = async (data) => {
         setLoading(true);
         try {
-            const response = await axiosInstance.post(API_ENDPOINTS.HOSPITALS, data);
-            setHospitals([...hospitals, response.data]);
+            // Using mock data API
+            const response = await hospitalAPI.create(data);
+            setHospitals([...hospitals, response]);
+
+            // Backend implementation (uncomment when backend is ready):
+            // const response = await axiosInstance.post(API_ENDPOINTS.HOSPITALS, data);
+            // setHospitals([...hospitals, response.data]);
+
             reset();
             setShowForm(false);
             alert('Hospital created successfully!');

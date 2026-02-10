@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useHospital } from '../context/HospitalContext';
-import axiosInstance from '../api/axios';
-import { API_ENDPOINTS } from '../utils/constants';
+import { schedulerAPI } from '../api/scheduler.api';
+// Backend imports (uncomment when backend is ready):
+// import axiosInstance from '../api/axios';
+// import { API_ENDPOINTS } from '../utils/constants';
 
 const PriorityQueue = () => {
     const { hospitalId } = useHospital();
@@ -19,8 +21,13 @@ const PriorityQueue = () => {
     const fetchQueue = async () => {
         setLoading(true);
         try {
-            const response = await axiosInstance.get(API_ENDPOINTS.PRIORITY_QUEUE);
-            setQueue(response.data);
+            // Using mock data API
+            const response = await schedulerAPI.getPriorityQueue();
+            setQueue(response.data || response);
+
+            // Backend implementation (uncomment when backend is ready):
+            // const response = await axiosInstance.get(API_ENDPOINTS.PRIORITY_QUEUE);
+            // setQueue(response.data);
         } catch (error) {
             console.error('Error fetching priority queue:', error);
         } finally {

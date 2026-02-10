@@ -21,17 +21,16 @@ const Login = () => {
             // Call login API
             const response = await authAPI.login(data.username);
 
-            // Mock successful login for hackathon
-            // In production, response would contain JWT token
-            const mockToken = response.token || 'mock-jwt-token-' + Date.now();
-            const mockUser = {
+            // Extract token and user from response
+            const token = response.token;
+            const user = response.user || {
                 username: data.username,
                 role: 'HOSPITAL_ADMIN',
                 name: data.username,
             };
 
             // Save to context and storage
-            login(mockUser, mockToken);
+            login(user, token);
 
             // Redirect to dashboard
             navigate('/dashboard');
@@ -43,9 +42,29 @@ const Login = () => {
         }
     };
 
-    const handleBiometricLogin = () => {
-        // Mock biometric authentication
-        alert('🔐 Biometric authentication would trigger here.\nFor hackathon demo, use the form below.');
+    const handleBiometricLogin = async () => {
+        setLoading(true);
+        setError('');
+
+        try {
+            // Quick dev login - automatically logs in as demo user
+            const response = await authAPI.login('demo_user');
+
+            const token = response.token;
+            const user = response.user || {
+                username: 'demo_user',
+                role: 'HOSPITAL_ADMIN',
+                name: 'Demo User',
+            };
+
+            login(user, token);
+            navigate('/dashboard');
+        } catch (err) {
+            console.error('Login error:', err);
+            setError(err.message || 'Login failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
