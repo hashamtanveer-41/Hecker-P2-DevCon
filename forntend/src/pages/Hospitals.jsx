@@ -61,203 +61,117 @@ const Hospitals = () => {
     };
 
     return (
-        <div style={styles.container}>
-            <div style={styles.header}>
-                <h1 style={styles.title}>Hospitals</h1>
+        <div className="mx-auto w-full max-w-6xl px-4 py-6">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-semibold text-gray-900">Hospitals</h1>
+                    <p className="mt-1 text-sm text-gray-500">Manage hospitals and set the active context.</p>
+                </div>
                 <button
                     onClick={() => setShowForm(!showForm)}
-                    style={styles.addButton}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
-                    {showForm ? 'Cancel' : '+ Add Hospital'}
+                    <span className="text-base">➕</span>
+                    {showForm ? 'Cancel' : 'Add Hospital'}
                 </button>
             </div>
 
             {showForm && (
-                <div style={styles.formCard}>
-                    <h3 style={styles.formTitle}>Create New Hospital</h3>
-                    <form onSubmit={handleSubmit(onSubmit)} style={styles.form}>
-                        <div style={styles.formGroup}>
-                            <label style={styles.label}>Hospital Name *</label>
+                <div className="mb-6 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+                    <div className="mb-4 flex items-center justify-between">
+                        <h3 className="text-base font-semibold text-gray-900">Create New Hospital</h3>
+                        <span className="text-xs text-gray-500">Required fields *</span>
+                    </div>
+                    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 md:grid-cols-2">
+                        <div className="md:col-span-1">
+                            <label className="mb-1 block text-sm font-medium text-gray-700">Hospital Name *</label>
                             <input
                                 type="text"
                                 {...register('name', { required: 'Hospital name is required' })}
-                                style={styles.input}
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                                 placeholder="e.g., City General Hospital"
                             />
-                            {errors.name && <span style={styles.error}>{errors.name.message}</span>}
+                            {errors.name && (
+                                <span className="mt-1 block text-xs text-red-600">{errors.name.message}</span>
+                            )}
                         </div>
 
-                        <div style={styles.formGroup}>
-                            <label style={styles.label}>Location *</label>
-                            <input
-                                type="text"
-                                {...register('location', { required: 'Location is required' })}
-                                style={styles.input}
-                                placeholder="e.g., New York, NY"
-                            />
-                            {errors.location && <span style={styles.error}>{errors.location.message}</span>}
+                        <div className="md:col-span-1">
+                            <label className="mb-1 block text-sm font-medium text-gray-700">Location *</label>
+                            <div className="relative">
+                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm">📍</span>
+                                <input
+                                    type="text"
+                                    {...register('location', { required: 'Location is required' })}
+                                    className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-3 text-sm text-gray-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                    placeholder="e.g., New York, NY"
+                                />
+                            </div>
+                            {errors.location && (
+                                <span className="mt-1 block text-xs text-red-600">{errors.location.message}</span>
+                            )}
                         </div>
 
-                        <button type="submit" disabled={loading} style={styles.submitButton}>
-                            {loading ? 'Creating...' : 'Create Hospital'}
-                        </button>
+                        <div className="md:col-span-2">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                <span className="text-base">✅</span>
+                                {loading ? 'Creating...' : 'Create Hospital'}
+                            </button>
+                        </div>
                     </form>
                 </div>
             )}
 
-            <div style={styles.tableCard}>
-                <h3 style={styles.tableTitle}>All Hospitals</h3>
+            <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+                <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-base font-semibold text-gray-900">All Hospitals</h3>
+                    <span className="text-xs text-gray-500">{hospitals.length} total</span>
+                </div>
                 {hospitals.length === 0 ? (
-                    <p style={styles.noData}>No hospitals found. Create one to get started.</p>
+                    <div className="flex items-center gap-2 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-6 text-sm text-amber-800">
+                        <span className="text-base">⚠️</span>
+                        No hospitals found. Create one to get started.
+                    </div>
                 ) : (
-                    <table style={styles.table}>
-                        <thead>
-                        <tr>
-                            <th style={styles.th}>ID</th>
-                            <th style={styles.th}>Name</th>
-                            <th style={styles.th}>Location</th>
-                            <th style={styles.th}>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {hospitals.map((hospital) => (
-                            <tr key={hospital.id} style={styles.tr}>
-                                <td style={styles.td}>{hospital.id}</td>
-                                <td style={styles.td}>{hospital.name}</td>
-                                <td style={styles.td}>{hospital.location}</td>
-                                <td style={styles.td}>
-                                    <button
-                                        onClick={() => handleSelectHospital(hospital)}
-                                        style={styles.selectButton}
-                                    >
-                                        Select
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full text-left text-sm">
+                            <thead>
+                                <tr className="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-600">
+                                    <th className="w-20 px-4 py-3">ID</th>
+                                    <th className="min-w-[260px] px-4 py-3">Name</th>
+                                    <th className="min-w-[220px] px-4 py-3">Location</th>
+                                    <th className="w-40 px-4 py-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                                {hospitals.map((hospital) => (
+                                    <tr key={hospital.id} className="transition hover:bg-gray-50">
+                                        <td className="px-4 py-3 font-medium text-gray-900">{hospital.id}</td>
+                                        <td className="px-4 py-3 text-gray-700">{hospital.name}</td>
+                                        <td className="px-4 py-3 text-gray-700">{hospital.location}</td>
+                                        <td className="px-4 py-3">
+                                            <button
+                                                onClick={() => handleSelectHospital(hospital)}
+                                                className="inline-flex items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-xs font-semibold text-white shadow-md transition hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2"
+                                            >
+                                                <span className="text-sm">✔️</span>
+                                                Select
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
         </div>
     );
 };
 
-const styles = {
-    container: {
-        maxWidth: '1200px',
-    },
-    header: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '24px',
-    },
-    title: {
-        fontSize: '28px',
-        fontWeight: 'bold',
-        margin: 0,
-    },
-    addButton: {
-        padding: '10px 20px',
-        backgroundColor: '#3b82f6',
-        color: 'white',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        fontSize: '14px',
-    },
-    formCard: {
-        backgroundColor: 'white',
-        padding: '24px',
-        borderRadius: '8px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        marginBottom: '24px',
-    },
-    formTitle: {
-        marginTop: 0,
-        marginBottom: '20px',
-        fontSize: '18px',
-    },
-    form: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-    },
-    formGroup: {
-        display: 'flex',
-        flexDirection: 'column',
-    },
-    label: {
-        fontSize: '14px',
-        fontWeight: '500',
-        marginBottom: '6px',
-    },
-    input: {
-        padding: '10px',
-        border: '1px solid #d1d5db',
-        borderRadius: '4px',
-        fontSize: '14px',
-    },
-    error: {
-        color: '#ef4444',
-        fontSize: '12px',
-        marginTop: '4px',
-    },
-    submitButton: {
-        padding: '12px',
-        backgroundColor: '#10b981',
-        color: 'white',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        fontSize: '14px',
-        fontWeight: '500',
-    },
-    tableCard: {
-        backgroundColor: 'white',
-        padding: '24px',
-        borderRadius: '8px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    },
-    tableTitle: {
-        marginTop: 0,
-        marginBottom: '16px',
-        fontSize: '18px',
-    },
-    noData: {
-        textAlign: 'center',
-        color: '#6b7280',
-        padding: '32px',
-    },
-    table: {
-        width: '100%',
-        borderCollapse: 'collapse',
-    },
-    th: {
-        textAlign: 'left',
-        padding: '12px',
-        borderBottom: '2px solid #e5e7eb',
-        fontSize: '14px',
-        fontWeight: '600',
-        color: '#374151',
-    },
-    tr: {
-        borderBottom: '1px solid #e5e7eb',
-    },
-    td: {
-        padding: '12px',
-        fontSize: '14px',
-    },
-    selectButton: {
-        padding: '6px 12px',
-        backgroundColor: '#8b5cf6',
-        color: 'white',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        fontSize: '12px',
-    },
-};
-
 export default Hospitals;
+
