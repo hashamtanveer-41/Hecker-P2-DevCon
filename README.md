@@ -362,10 +362,10 @@ Resource inefficiency → Optimized allocation
 
 # COLLABORATIONS
 
-  -Hasham Tanveer
-  -Usman Bukhari
-  -Muhammad Mujtaba
-  -Salman Ali Malik
+  - Hasham Tanveer
+  - Usman Bukhari
+  - Muhammad Mujtaba
+  - Salman Ali Malik
   
 # 🏁 CONCLUSION
 
