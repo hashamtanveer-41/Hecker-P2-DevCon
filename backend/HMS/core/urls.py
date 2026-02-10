@@ -6,10 +6,10 @@ from core.views import *
 router = DefaultRouter()
 router.register(r"hospitals", HospitalViewSet, basename="hospital")
 router.register(r"operating-rooms", OperatingRoomViewSet, basename="operatingroom")
-# router.register(r"staff", StaffViewSet, basename="staff")
-# router.register(r"equipment", EquipmentViewSet, basename="equipment")
-# router.register(r"surgery-requests", SurgeryRequestViewSet, basename="surgeryrequest")
-# router.register(r"schedule", ScheduleViewSet, basename="schedule")
+router.register(r"staff", StaffViewSet, basename="staff")
+router.register(r"equipment", EquipmentViewSet, basename="equipment")
+router.register(r"surgery-requests", SurgeryRequestViewSet, basename="surgeryrequest")
+router.register(r"schedule", SurgeryScheduleViewSet, basename="schedule")
 
 # # Additional APIViews that are not simple viewsets:
 # additional_urlpatterns = [

@@ -115,3 +115,7 @@ class BaseLoggedInViewSet(viewsets.ViewSet):
 
 from core.modules.views.hospital import HospitalViewSet
 from core.modules.views.operating_room import OperatingRoomViewSet
+from core.modules.views.staff import StaffViewSet
+from core.modules.views.equipment import EquipmentViewSet
+from core.modules.views.surgery_requests import SurgeryRequestViewSet
+from core.modules.views.schedule import SurgeryScheduleViewSet
