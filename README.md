@@ -1,539 +1,385 @@
-# 🏥 Hospital Management & Surgery Scheduling System
+# 🏥 Hospital Operating Room Scheduler &  Intelligent Conflict Resolution
 
-A full-stack web-based Hospital Operating Room (OR) Scheduling System designed to optimize surgical workflows, eliminate scheduling conflicts, and improve operating room utilization through intelligent prioritization and real-time monitoring.
+A full-stack web-based platform engineered to manage, optimize, and intelligently schedule hospital operating rooms while preventing conflicts and enforcing priority-based surgical allocation.
 
-Built for Webathon 2026 🚀
+Built for Webathon 2026 – Devcon-MCS,NUST
 
-🔐 Demo Login Credentials
+---
 
-Use the following credentials to access different modules of the system:
+# 🔐 SYSTEM ACCESS FLOW
 
-👨‍⚕️ Admin
+## 1️⃣ LOGIN MODULE
 
-Email: admin@hospital.org
+The system begins at the `/login` route.
 
-Password: Admin@123
+### Features:
+- Email authentication
+- Password authentication
+- Biometric login option (UI supported)
+- Secure form validation
+- Role-based access redirection
+- Navigation to registration page
 
-Access: Full system access (Dashboard, Scheduler, ORs, Surgeons, Equipment, Analytics, Notifications)
+After successful authentication:
+- Admin → Full Dashboard Access
+- Surgeon → Surgery + Queue access
+- OR Coordinator → Scheduling & Resource access
 
-🧑‍⚕️ Surgeon
+---
 
-Email: surgeon@hospital.org
+## 2️⃣ REGISTRATION MODULE
 
-Password: Surgeon@123
+Accessible via `/register`
 
-Access: Surgery Requests, Scheduler (view), Priority Queue, Notifications
+### Fields:
+- Full Name
+- Email
+- Password
+- Role Selection:
+  - Surgeon
+  - OR Coordinator
+  - Admin
+- Hospital Name
 
-🗂 OR Coordinator
+This module integrates with backend RBAC (Role-Based Access Control).
 
-Email: coordinator@hospital.org
+---
 
-Password: Coordinator@123
+# 🧭 APPLICATION LAYOUT SYSTEM
 
-Access: Scheduler, OR Management, Equipment, Priority Queue
+After login, all protected routes are wrapped inside:
 
-📌 Project Overview
+`AppLayout`
 
-The Hospital OR Scheduler is a modern web application that manages:
+## Layout Components
 
-Operating Room scheduling
+### Sidebar Navigation
+Includes links to:
+- Dashboard
+- Surgery Requests
+- Scheduler
+- Priority Queue
+- Equipment
+- Surgeons
+- Operating Rooms
+- Notifications
+- Analytics
 
-Surgery request processing
+### Topbar
+- System title
+- Logged-in user badge
+- Hospital name display
 
-Priority-based intelligent queue
+### Main Content Area
+Dynamic rendering based on selected module.
 
-Conflict detection & resolution
+---
 
-Equipment allocation
+# 📊 DASHBOARD MODULE
 
-Surgeon workload tracking
+Route: `/`
 
-Real-time notifications
+The dashboard acts as the operational command center.
 
-OR analytics & utilization metrics
+## A. OR Utilization Card
+- Displays current OR usage %
+- Idle OR count
+- Maintenance OR count
+- Target ≥ 85%
 
-The system is designed to:
+## B. Active Cases Card
+- In-progress surgeries
+- Emergency count
+- Urgent count
 
-Increase OR utilization (Target ≥ 85%)
+## C. Average Wait Time Card
+- Emergency SLA indicator (< 90 min)
+- Urgent SLA indicator (24–32 hours)
 
-Reduce scheduling conflicts
+## D. Conflict Summary Card
+- Hard conflicts count
+- Soft conflicts count
 
-Minimize patient wait times
+## E. GanttSchedule Component
+- Multi-OR timeline visualization
+- Displays time-blocked surgeries
+- Visual scheduling overview
 
-Provide SLA-based prioritization (Emergency, Urgent, Elective)
+## F. Priority Snapshot Panel
+Shows:
+- Emergency queue count
+- Urgent queue count
+- Elective pipeline count
+- SLA breach warnings
+- Queue aging indicators
 
-Improve hospital resource optimization
+## G. Top Conflict Drivers
+- Surgeon double-booking
+- Equipment sterilization overlap
+- Post-op bed unavailability
 
-🏗 System Architecture
+---
 
-This is a Full-Stack Web Application
+# 📄 SURGERY REQUESTS MODULE
 
-🖥 Frontend
+Route: `/surgery-requests`
 
-React + TypeScript
+Handles intake of surgical cases before scheduling.
 
-React Router DOM
+## Functionalities:
+- View surgery requests
+- Create new request
+- Assign priority:
+  - Emergency
+  - Urgent
+  - Elective
+- Track request status
+- Structured case submission
 
-Component-based architecture
+Backend processes:
+- Priority tagging
+- Validation
+- Scheduling eligibility
 
-Modular page structure
+---
 
-Clean hospital-themed UI
+# 🧠 INTELLIGENT SCHEDULER MODULE
 
-Responsive layout
+Route: `/scheduler`
 
-Gantt-based scheduling visualization
+Core scheduling engine interface.
 
-⚙ Backend
+## Functional Capabilities:
 
-RESTful API architecture
+- Multi-OR Gantt timeline
+- Visual schedule allocation
+- Drag-and-drop architecture (UI-ready)
+- Conflict-aware scheduling
+- SLA-based placement logic
 
-Authentication & role-based access
+Scheduler validates:
 
-Scheduler logic engine
+- OR availability
+- Surgeon availability
+- Equipment availability
+- Maintenance windows
+- Priority urgency
 
-Conflict detection module
+---
 
-Priority queue algorithm
+# ⚠ CONFLICT DETECTION SYSTEM
 
-Real-time notification handling
+Integrated across scheduler and dashboard.
 
-Database integration (for surgeries, ORs, surgeons, equipment)
+## Hard Conflicts:
+- Surgeon double-booked
+- Same OR overlapping cases
+- Equipment unavailable
+- OR under maintenance
 
-📂 Frontend Architecture
-frontend/
- └── src/
-      ├── pages/
-      ├── components/
-      ├── layout/
-      ├── App.tsx
-      ├── main.tsx
+## Soft Conflicts:
+- Minor overlaps
+- Suboptimal resource allocation
+- Optimization inefficiencies
 
-🔹 Routing (App.tsx)
+System tracks:
+- Total conflicts
+- Type distribution
+- Conflict origin drivers
 
-The application uses React Router DOM for client-side routing.
+---
 
-Routes include:
+# 📌 PRIORITY QUEUE MODULE
 
-/login
+Route: `/priority-queue`
 
-/register
+Implements structured triage-based scheduling.
 
-/
+## Priority Levels:
 
-/surgery-requests
+| Priority   | SLA Target |
+|------------|------------|
+| Emergency  | < 2 Hours  |
+| Urgent     | 24–48 Hours|
+| Elective   | Scheduled  |
 
-/scheduler
+## Features:
+- Queue aging tracking
+- Escalation monitoring
+- Dynamic reprioritization
+- SLA breach warnings
+- Queue snapshot analytics
 
-/priority-queue
+---
 
-/equipment
+# 🛠 EQUIPMENT MANAGEMENT MODULE
 
-/surgeons
+Route: `/equipment`
 
-/operating-rooms
+Tracks surgical resource allocation.
 
-/notifications
-
-/analytics
-
-All protected routes are wrapped inside:
-
-<AppLayout>
-
-🧩 Core Modules & Functionalities
-1️⃣ Authentication Module
-Login Page
-
-Email & Password authentication
-
-Biometric login option
-
-Secure form validation
-
-Redirect on successful login
-
-Register Page
-
-Name
-
-Email
-
-Password
-
-Role selection:
-
-Surgeon
-
-OR Coordinator
-
-Admin
-
-Hospital association
-
-2️⃣ Dashboard Module
-
-Displays real-time hospital metrics:
-
-Metrics Cards
-
-OR Utilization %
-
-Active Surgical Cases
-
-Emergency / Urgent counts
-
-Average Wait Time
-
-Hard & Soft Conflicts
-
-Priority Snapshot
-
-Emergency Queue (SLA monitoring)
-
-Urgent Queue
-
-Elective Pipeline
-
-Conflict driver breakdown
-
-Gantt Schedule Preview
-
-Multi-OR timeline
-
-Time-blocked surgeries
-
-Visual conflict indicators
-
-3️⃣ Surgery Requests Module
-
-Create new surgery request
-
-Filter by:
-
-Priority
-
-Surgeon
-
-Department
-
-Status
-
-View request table
-
-Edit / Cancel request
-
-Assign urgency:
-
-Emergency
-
-Urgent
-
-Elective
-
-Backend handles:
-
-Validation
-
-Priority tagging
-
-Scheduling readiness
-
-4️⃣ Intelligent Scheduler Module
-
-Core engine of the system.
-
-Features:
-
-Multi-OR Gantt timeline
-
-Drag & Drop scheduling
-
-Conflict detection:
-
-Surgeon double booking
-
-Equipment overlap
-
-OR maintenance clash
-
-Post-op bed availability
-
-Hard vs Soft conflict classification
-
-Automatic schedule suggestions
-
-Algorithm factors:
-
-OR availability
-
-Surgeon availability
-
-Equipment readiness
-
-Priority weight
-
-SLA deadlines
-
-5️⃣ Priority Queue Engine
-
-Three-level priority classification:
-
-Priority	SLA
-Emergency	< 2 Hours
-Urgent	24–48 Hours
-Elective	Scheduled
-
-Queue supports:
-
-Aging detection
-
-Escalation logic
-
-Real-time reorder
-
-Dynamic reprioritization
-
-6️⃣ Equipment Management
-
-Tracks:
-
-Equipment inventory
-
-Availability
-
-Sterilization cycles
-
-Maintenance state
-
-OR compatibility
+## Capabilities:
+- Equipment inventory tracking
+- Availability monitoring
+- Sterilization cycle conflict detection
+- Maintenance status
+- OR compatibility validation
 
 Prevents:
+- Equipment double booking
+- Overlapping sterilization windows
 
-Equipment double booking
+---
 
-Sterilization overlaps
+# 🧑‍⚕️ SURGEONS MODULE
 
-7️⃣ Surgeons Module
+Route: `/surgeons`
 
-Tracks:
+Tracks surgical workforce availability.
 
-Surgeon profiles
-
-Workload
-
-Availability calendar
-
-Specializations
-
-Assigned surgeries
+## Features:
+- Surgeon profiles
+- Workload monitoring
+- Assigned surgeries
+- Availability calendar
+- Specialization tracking
 
 Prevents:
+- Double booking
+- Overload scheduling
 
-Double booking
+---
 
-Overload scheduling
+# 🏥 OPERATING ROOMS MODULE
 
-8️⃣ Operating Rooms Module
+Route: `/operating-rooms`
 
-Tracks:
+Monitors all OR infrastructure.
 
-OR list
+## Tracks:
+- OR capability
+- Active/Idle state
+- Maintenance schedule
+- Utilization rate
+- Compatibility with surgery types
 
-Capability (Cardiac, Neuro, Ortho, etc.)
+Prevents:
+- OR overlap
+- Maintenance scheduling conflicts
 
-Maintenance state
+---
 
-Active / Idle status
+# 🔔 NOTIFICATIONS MODULE
 
-Utilization rate
+Route: `/notifications`
 
-9️⃣ Notifications Module
+Centralized alert management system.
 
-Real-time alert system:
+## Alerts Include:
+- Conflict detection alerts
+- SLA breach warnings
+- Emergency additions
+- Schedule updates
 
-Conflict alerts
+Supports:
+- Mark-as-read
+- Clear all
+- Real-time monitoring architecture
 
-SLA breach warnings
+---
 
-Emergency additions
+# 📈 ANALYTICS MODULE
 
-Schedule updates
+Route: `/analytics`
 
-Mark-as-read
+Provides operational insights.
 
-Clear all
+## Metrics:
+- OR utilization trends
+- Average wait time analysis
+- Conflict frequency distribution
+- Surgeon workload statistics
+- Resource bottleneck detection
 
-🔟 Analytics Module
+Supports export-ready reporting architecture.
 
-Provides insights:
+---
 
-OR utilization trends
+# 🔐 SECURITY ARCHITECTURE
 
-Average wait times
+- Role-Based Access Control (RBAC)
+- Protected routes via AppLayout
+- Modular component isolation
+- Authentication-based routing
+- Structured permission layers
 
-Conflict frequency
+---
 
-Surgeon workload distribution
+# 🏗 TECHNICAL ARCHITECTURE
 
-Equipment bottlenecks
+## Frontend
+- React
+- TypeScript
+- React Router DOM
+- Modular page-based architecture
+- Gantt-based scheduling visualization
+- Component-driven layout
 
-Export reports (CSV / PDF)
+## Backend
+- RESTful API
+- Scheduling engine logic
+- Conflict detection module
+- Priority queue algorithm
+- Notification system
+- Persistent database integration
 
-⚡ Intelligent Conflict Resolution
+---
 
-The system detects:
+# 🚀 APPLICATION FLOW SUMMARY
 
-Hard Conflicts
+1. User logs in
+2. Role-based access granted
+3. Dashboard displays live hospital metrics
+4. Surgery request submitted
+5. Case enters priority queue
+6. Scheduler allocates OR & resources
+7. Conflict detection validates allocation
+8. Notifications triggered if necessary
+9. Analytics reflect operational performance
 
-Surgeon double-booked
+---
 
-Same OR at same time
+# 🎯 SYSTEM IMPACT
 
-Equipment unavailable
+This platform transforms:
 
-Soft Conflicts
+Manual scheduling → Intelligent scheduling  
+Conflict-prone workflows → Automated validation  
+Unstructured prioritization → SLA-based triage  
+Resource inefficiency → Optimized allocation  
 
-Minor time overlaps
+---
 
-Resource optimization issues
+# COLLABORATIONS
 
-Resolution Strategies:
+  -Hasham Tanveer
+  -Usman Bukhari
+  -Muhammad Mujtaba
+  -Salman Ali Malik
+  
+# 🏁 CONCLUSION
 
-Auto-reschedule suggestions
+The Hospital Operating Room Scheduler is a complete end-to-end surgical operations management system that combines:
 
-Priority-based override
+- Intelligent conflict resolution
+- Priority-based queue management
+- Resource optimization
+- Real-time monitoring
+- Modular scalable architecture
 
-Alternate OR recommendation
+Designed for production scalability and healthcare modernization.
 
-Time slot optimization
+---
 
-🎨 UI/UX Design
-
-Design inspired by:
-
-Clean hospital dashboard aesthetic
-
-Soft blue/white medical palette
-
-Card-based metric display
-
-Minimal cognitive load
-
-Accessible typography
-
-Badge-based priority visualization
-
-Color Indicators:
-
-🔴 Emergency
-
-🟠 Urgent
-
-🔵 Elective
-
-🟢 Available
-
-🟡 Maintenance
-
-🔐 Security Features
-
-Role-Based Access Control (RBAC)
-
-Secure authentication
-
-Route protection
-
-Input validation
-
-Backend API validation
-
-Modular architecture for scalability
-
-🚀 How to Run the Project
-Frontend
-cd frontend
-npm install
-npm run dev
-
-
-Runs on:
-
-http://localhost:5173
-
-Backend
-cd backend
-npm install
-npm start
-
-
-Make sure:
-
-Database is connected
-
-Environment variables are configured
-
-🧠 Future Improvements
-
-AI-based predictive scheduling
-
-Machine learning for OR utilization optimization
-
-Real-time WebSocket updates
-
-Mobile application
-
-HL7 / FHIR hospital system integration
-
-Multi-hospital network support
-
-Advanced analytics dashboard
-
-📊 Problem We Solved
-
-Hospitals face:
-
-OR underutilization
-
-Scheduling conflicts
-
-Equipment overlap
-
-Surgeon double-booking
-
-SLA violations
-
-Long patient wait times
-
-Our system provides:
-
-✅ Intelligent scheduling
-✅ Conflict prevention
-✅ Priority-based optimization
-✅ Real-time monitoring
-✅ Data-driven decisions
-
-👥 Team & Webathon Submission
-
-Project built for Webathon 2026
-Category: Healthcare Innovation
-
-A scalable, modular, production-ready OR scheduling platform designed to modernize surgical workflow management.
-
-🏁 Conclusion
-
-The Hospital Operating Room Scheduler is a comprehensive digital solution that transforms manual, error-prone OR scheduling into a smart, optimized, and intelligent workflow management system.
-
-It combines:
-
-Real-time analytics
-
-Intelligent prioritization
-
-Conflict detection
-
-Resource optimization
-
-Clean UI architecture
-
-Making hospital surgical operations more efficient, safer, and data-driven.
+## Webathon 2026 Submission  
+Healthcare Innovation Category
