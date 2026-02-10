@@ -32,14 +32,17 @@ from core.models import (
     Hospital,
     OperatingRoom,
     BaseUserProfile,
+    RescheduleEvent,
     SurgeonProfile,
     StaffProfile,
     Patient,
+    SurgeryEquipmentRequirement,
     SurgeryRequest,
     SurgeryQueue,
     Equipment,
     EquipmentSterilization,
     Notification,
+    SurgerySchedule,
 )
 
 fake = Faker()
@@ -49,14 +52,48 @@ class Command(BaseCommand):
     help = "Generate dummy data for the OR scheduler. Always cleans existing data for targeted models before creating new data."
 
     def add_arguments(self, parser: CommandParser) -> None:
-        parser.add_argument("--hospital", type=int, default=2, help="Number of hospitals to create.")
-        parser.add_argument("--operatingroom", type=int, default=4, help="Number of operating rooms per hospital.")
-        parser.add_argument("--surgeon", type=int, default=4, help="Number of surgeons to create per hospital.")
-        parser.add_argument("--staff", type=int, default=6, help="Number of staff (nurses/techs) per hospital.")
-        parser.add_argument("--patient", type=int, default=10, help="Number of patients per hospital.")
-        parser.add_argument("--equipment", type=int, default=8, help="Number of equipment items per hospital.")
-        parser.add_argument("--surgeryrequest", type=int, default=10, help="Number of surgery requests per hospital.")
-        parser.add_argument("--users", type=int, default=6, help="Number of plain django users (testuserX) to create.")
+        parser.add_argument(
+            "--hospital", type=int, default=2, help="Number of hospitals to create."
+        )
+        parser.add_argument(
+            "--operatingroom",
+            type=int,
+            default=4,
+            help="Number of operating rooms per hospital.",
+        )
+        parser.add_argument(
+            "--surgeon",
+            type=int,
+            default=4,
+            help="Number of surgeons to create per hospital.",
+        )
+        parser.add_argument(
+            "--staff",
+            type=int,
+            default=6,
+            help="Number of staff (nurses/techs) per hospital.",
+        )
+        parser.add_argument(
+            "--patient", type=int, default=10, help="Number of patients per hospital."
+        )
+        parser.add_argument(
+            "--equipment",
+            type=int,
+            default=8,
+            help="Number of equipment items per hospital.",
+        )
+        parser.add_argument(
+            "--surgeryrequest",
+            type=int,
+            default=10,
+            help="Number of surgery requests per hospital.",
+        )
+        parser.add_argument(
+            "--users",
+            type=int,
+            default=6,
+            help="Number of plain django users (testuserX) to create.",
+        )
         parser.add_argument(
             "--clean-only",
             action="store_true",
@@ -90,14 +127,21 @@ class Command(BaseCommand):
             hospitals = self._create_hospitals(counts["hospital"])
             # For each hospital create other things
             for idx, hospital in enumerate(hospitals, start=1):
-                self.stdout.write(f"Populating hospital {idx}/{len(hospitals)}: {hospital.name}")
+                self.stdout.write(
+                    f"Populating hospital {idx}/{len(hospitals)}: {hospital.name}"
+                )
                 self._create_operating_rooms(hospital, counts["operatingroom"])
                 surgeons = self._create_surgeons(hospital, counts["surgeon"])
                 self._create_staff(hospital, counts["staff"])
                 patients = self._create_patients(hospital, counts["patient"])
                 equipment_items = self._create_equipment(hospital, counts["equipment"])
                 self._create_equipment_sterilization(equipment_items)
-                self._create_surgery_requests(hospital, patients, surgeons, counts["surgeryrequest"])
+                self._create_surgery_requests(
+                    hospital, patients, surgeons, counts["surgeryrequest"]
+                )
+                self._create_surgery_schedules(hospital)
+                self._create_reschedule_events(hospital)
+                self._create_surgery_equipment_requirements(hospital)
 
             # Create extra plain Django users
             self._create_plain_users(counts["users"])
@@ -128,6 +172,9 @@ class Command(BaseCommand):
             (BaseUserProfile, "base user profiles"),
             (OperatingRoom, "operating rooms"),
             (Hospital, "hospitals"),
+            (RescheduleEvent, "reschedule events"),
+            (SurgerySchedule, "surgery schedules"),
+            (SurgeryEquipmentRequirement, "surgery equipment requirements"),
             # Do not delete User superusers automatically unless they were created by this script.
             # We'll remove test users below.
         ]
@@ -155,10 +202,16 @@ class Command(BaseCommand):
         for i in range(count):
             name: str = f"{fake.company()} Hospital"
             code: str = f"HOSP-{fake.unique.bothify(text='####')}"
-            tz: str = random.choice(["UTC", "Asia/Karachi", "Europe/London", "America/New_York"])
-            hospital = Hospital.objects.create(name=name, code=code, timezone=tz, is_active=True)
+            tz: str = random.choice(
+                ["UTC", "Asia/Karachi", "Europe/London", "America/New_York"]
+            )
+            hospital = Hospital.objects.create(
+                name=name, code=code, timezone=tz, is_active=True
+            )
             created.append(hospital)
-            self.stdout.write(f"  [Hospital {i+1}/{count}] {hospital.name} ({hospital.code})")
+            self.stdout.write(
+                f"  [Hospital {i+1}/{count}] {hospital.name} ({hospital.code})"
+            )
         return created
 
     def _create_operating_rooms(self, hospital: Hospital, count: int) -> None:
@@ -183,10 +236,20 @@ class Command(BaseCommand):
         created: List[SurgeonProfile] = []
         for i in range(count):
             username: str = f"surgeon_{hospital.code}_{i+1}"
-            django_user = User.objects.create_user(username=username, email=fake.email(), password="testuser123")
-            base_profile = BaseUserProfile.objects.create(django_user=django_user, hospital=hospital, role="surgeon")
-            specialization: str = random.choice(["Cardiac", "Neurosurgery", "Orthopedics", "General"])
-            surgeon = SurgeonProfile.objects.create(base_profile=base_profile, specialization=specialization, max_daily_hours=random.randint(6, 12))
+            django_user = User.objects.create_user(
+                username=username, email=fake.email(), password="testuser123"
+            )
+            base_profile = BaseUserProfile.objects.create(
+                django_user=django_user, hospital=hospital, role="surgeon"
+            )
+            specialization: str = random.choice(
+                ["Cardiac", "Neurosurgery", "Orthopedics", "General"]
+            )
+            surgeon = SurgeonProfile.objects.create(
+                base_profile=base_profile,
+                specialization=specialization,
+                max_daily_hours=random.randint(6, 12),
+            )
             created.append(surgeon)
             self._print_progress(i + 1, count, prefix="    Creating surgeons")
         return created
@@ -195,11 +258,22 @@ class Command(BaseCommand):
         """Create staff profiles for hospital."""
         for i in range(count):
             username: str = f"staff_{hospital.code}_{i+1}"
-            django_user = User.objects.create_user(username=username, email=fake.email(), password="testuser123")
-            base_profile = BaseUserProfile.objects.create(django_user=django_user, hospital=hospital, role="nurse")
-            start: datetime = timezone.now().replace(hour=8, minute=0, second=0, microsecond=0)
+            django_user = User.objects.create_user(
+                username=username, email=fake.email(), password="testuser123"
+            )
+            base_profile = BaseUserProfile.objects.create(
+                django_user=django_user, hospital=hospital, role="nurse"
+            )
+            start: datetime = timezone.now().replace(
+                hour=8, minute=0, second=0, microsecond=0
+            )
             end: datetime = start + timedelta(hours=8)
-            StaffProfile.objects.create(base_profile=base_profile, start_time=start, end_time=end, is_on_call=random.choice([False, True]))
+            StaffProfile.objects.create(
+                base_profile=base_profile,
+                start_time=start,
+                end_time=end,
+                is_on_call=random.choice([False, True]),
+            )
             self._print_progress(i + 1, count, prefix="    Creating staff")
 
     def _create_patients(self, hospital: Hospital, count: int) -> List[Patient]:
@@ -209,7 +283,13 @@ class Command(BaseCommand):
             mrn: str = fake.unique.bothify(text="MRN-####-??")
             dob: date = fake.date_of_birth(minimum_age=0, maximum_age=90)
             gender: str = random.choice(["male", "female"])
-            patient = Patient.objects.create(hospital=hospital, medical_record_number=mrn, full_name=fake.name(), date_of_birth=dob, gender=gender)
+            patient = Patient.objects.create(
+                hospital=hospital,
+                medical_record_number=mrn,
+                full_name=fake.name(),
+                date_of_birth=dob,
+                gender=gender,
+            )
             created.append(patient)
             self._print_progress(i + 1, count, prefix="    Creating patients")
         return created
@@ -217,11 +297,23 @@ class Command(BaseCommand):
     def _create_equipment(self, hospital: Hospital, count: int) -> List[Equipment]:
         """Create equipment items for hospital."""
         created: List[Equipment] = []
-        equipment_types = ["Ventilator", "Monitor", "Sterile Tray", "C-arm", "Anesthesia Machine"]
+        equipment_types = [
+            "Ventilator",
+            "Monitor",
+            "Sterile Tray",
+            "C-arm",
+            "Anesthesia Machine",
+        ]
         for i in range(count):
             name: str = f"{random.choice(equipment_types)} {fake.bothify(text='###')}"
             eq_type: str = random.choice(equipment_types)
-            item = Equipment.objects.create(hospital=hospital, name=name, equipment_type=eq_type, location="Central Store", is_available=True)
+            item = Equipment.objects.create(
+                hospital=hospital,
+                name=name,
+                equipment_type=eq_type,
+                location="Central Store",
+                is_available=True,
+            )
             created.append(item)
             self._print_progress(i + 1, count, prefix="    Creating equipment")
         return created
@@ -232,12 +324,22 @@ class Command(BaseCommand):
             return
         count: int = len(equipment_items)
         for idx, item in enumerate(equipment_items, start=1):
-            sterilized_at: datetime = timezone.now() - timedelta(days=random.randint(0, 3))
+            sterilized_at: datetime = timezone.now() - timedelta(
+                days=random.randint(0, 3)
+            )
             valid_until: datetime = sterilized_at + timedelta(days=random.randint(1, 7))
-            EquipmentSterilization.objects.create(equipment=item, sterilized_at=sterilized_at, valid_until=valid_until)
+            EquipmentSterilization.objects.create(
+                equipment=item, sterilized_at=sterilized_at, valid_until=valid_until
+            )
             self._print_progress(idx, count, prefix="    Sterilizing equipment")
 
-    def _create_surgery_requests(self, hospital: Hospital, patients: List[Patient], surgeons: List[SurgeonProfile], count: int) -> None:
+    def _create_surgery_requests(
+        self,
+        hospital: Hospital,
+        patients: List[Patient],
+        surgeons: List[SurgeonProfile],
+        count: int,
+    ) -> None:
         """Create surgery requests and optionally queues/notifications."""
         procedure_types = ["general", "cardiac", "neuro", "ortho"]
         priority_choices = ["emergency", "urgent", "elective"]
@@ -249,8 +351,12 @@ class Command(BaseCommand):
             proc_type: str = random.choice(procedure_types)
             complexity: int = random.randint(1, 5)
             priority: str = random.choice(priority_choices)
-            latest_allowed: datetime = timezone.now() + timedelta(days=random.randint(0, 30))
-            preferred_surgeon: Optional[SurgeonProfile] = random.choice(surgeons) if surgeons else None
+            latest_allowed: datetime = timezone.now() + timedelta(
+                days=random.randint(0, 30)
+            )
+            preferred_surgeon: Optional[SurgeonProfile] = (
+                random.choice(surgeons) if surgeons else None
+            )
             sr = SurgeryRequest.objects.create(
                 hospital=hospital,
                 patient=patient,
@@ -258,28 +364,124 @@ class Command(BaseCommand):
                 procedure_type=proc_type,
                 complexity=complexity,
                 priority=priority,
-                required_specialization=preferred_surgeon.base_profile.django_user.get_full_name() if preferred_surgeon else None,
+                required_specialization=(
+                    preferred_surgeon.base_profile.django_user.get_full_name()
+                    if preferred_surgeon
+                    else None
+                ),
                 anesthesia_type=random.choice(["general", "regional", "local"]),
                 preferred_surgeon=preferred_surgeon,
                 latest_allowed_time=latest_allowed,
                 approved=random.choice([True, False]),
             )
             # Create queue entry
-            SurgeryQueue.objects.create(surgery_request=sr, current_priority=priority, wait_days=random.randint(0, 20), escalated=random.choice([False, True]))
+            SurgeryQueue.objects.create(
+                surgery_request=sr,
+                current_priority=priority,
+                wait_days=random.randint(0, 20),
+                escalated=random.choice([False, True]),
+            )
             # Optionally create a notification to an admin user if approval false
             if not sr.approved:
                 # pick any admin base profile in hospital (if present), otherwise skip
-                admin_profile = BaseUserProfile.objects.filter(hospital=hospital, role="admin").first()
+                admin_profile = BaseUserProfile.objects.filter(
+                    hospital=hospital, role="admin"
+                ).first()
                 if admin_profile:
-                    Notification.objects.create(base_profile=admin_profile, message=f"Surgery {sr.procedure_name} needs approval.", severity="warning")
+                    Notification.objects.create(
+                        base_profile=admin_profile,
+                        message=f"Surgery {sr.procedure_name} needs approval.",
+                        severity="warning",
+                    )
             self._print_progress(i + 1, count, prefix="    Creating surgery requests")
+
+    def _create_surgery_schedules(self, hospital: Hospital) -> None:
+        """Create SurgerySchedule entries for approved surgery requests."""
+        surgery_requests = SurgeryRequest.objects.filter(
+            hospital=hospital, approved=True
+        )
+        operating_rooms = list(OperatingRoom.objects.filter(hospital=hospital))
+        if not operating_rooms:
+            return
+
+        for i, sr in enumerate(surgery_requests, start=1):
+            oroom = random.choice(operating_rooms)
+            start_time = timezone.now() + timedelta(
+                days=random.randint(0, 5), hours=random.randint(8, 16)
+            )
+            end_time = start_time + timedelta(hours=random.randint(1, 4))
+            sched = SurgerySchedule.objects.create(
+                surgery_request=sr,
+                operating_room=oroom,
+                start_time=start_time,
+                end_time=end_time,
+                status="scheduled",
+                notes=f"Auto-generated schedule for {sr.procedure_name}",
+            )
+            # Assign surgeons (1-2 randomly)
+            surgeons = SurgeonProfile.objects.filter(base_profile__hospital=hospital)
+            if surgeons:
+                sched.surgeons.set(
+                    random.sample(
+                        list(surgeons), min(len(surgeons), random.randint(1, 2))
+                    )
+                )
+            self._print_progress(
+                i, surgery_requests.count(), prefix="    Creating surgery schedules"
+            )
+
+    def _create_reschedule_events(self, hospital: Hospital) -> None:
+        """Create some reschedule events for schedules (simulate bumps)."""
+        schedules = SurgerySchedule.objects.filter(operating_room__hospital=hospital)
+        for i, sched in enumerate(schedules, start=1):
+            # Randomly decide to create a reschedule
+            if random.choice([True, False]):
+                reason = random.choice(
+                    [
+                        "Equipment maintenance",
+                        "Surgeon unavailable",
+                        "Emergency case bumped schedule",
+                        "Staff shortage",
+                    ]
+                )
+                RescheduleEvent.objects.create(
+                    triggered_by=sched.surgery_request,
+                    affected_schedule=sched,
+                    reason=reason,
+                )
+            self._print_progress(
+                i, schedules.count(), prefix="    Creating reschedule events"
+            )
+
+    def _create_surgery_equipment_requirements(self, hospital: Hospital) -> None:
+        """Assign random equipment requirements to surgery requests."""
+        surgery_requests = SurgeryRequest.objects.filter(hospital=hospital)
+        equipment_items = list(Equipment.objects.filter(hospital=hospital))
+        for i, sr in enumerate(surgery_requests, start=1):
+            if equipment_items:
+                # Each surgery requires 1-3 equipment items
+                required_eqs = random.sample(
+                    equipment_items, min(len(equipment_items), random.randint(1, 3))
+                )
+                for eq in required_eqs:
+                    qty = random.randint(1, 2)
+                    SurgeryEquipmentRequirement.objects.create(
+                        surgery_request=sr, equipment=eq, quantity_required=qty
+                    )
+            self._print_progress(
+                i,
+                surgery_requests.count(),
+                prefix="    Creating equipment requirements",
+            )
 
     def _create_plain_users(self, count: int) -> None:
         """Create plain Django users with password 'testuser123'."""
         for i in range(count):
             username: str = f"testuser{i+1}"
             email: str = fake.email()
-            User.objects.create_user(username=username, email=email, password="testuser123")
+            User.objects.create_user(
+                username=username, email=email, password="testuser123"
+            )
             self._print_progress(i + 1, count, prefix="  Creating plain django users")
 
     def _create_superuser(self) -> None:
@@ -291,7 +493,11 @@ class Command(BaseCommand):
             # ensure predictable state: delete previous before creating
             User.objects.filter(username=username).delete()
         User.objects.create_superuser(username=username, email=email, password=password)
-        self.stdout.write(self.style.SUCCESS(f"Created superuser '{username}' with password '{password}'."))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Created superuser '{username}' with password '{password}'."
+            )
+        )
 
     # ---------------------
     # Utilities

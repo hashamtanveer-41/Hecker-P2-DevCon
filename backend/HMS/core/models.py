@@ -57,6 +57,9 @@ class BaseUserProfile(models.Model):
         ],
     )
 
+    def __str__(self):
+        return f"{self.django_user.get_username()} ({self.role})"
+
 
 class SurgeonProfile(models.Model):
     base_profile = models.OneToOneField(BaseUserProfile, on_delete=models.CASCADE)
@@ -64,7 +67,7 @@ class SurgeonProfile(models.Model):
     max_daily_hours = models.IntegerField(default=12)
 
     def __str__(self):
-        return self.base_profile.django_user.get_full_name()
+        return self.base_profile.django_user.get_username()
 
 
 class StaffProfile(models.Model):
@@ -77,7 +80,7 @@ class StaffProfile(models.Model):
     )
 
     def __str__(self):
-        return self.base_profile.django_user.get_full_name()
+        return self.base_profile.django_user.get_username()
 
 
 # cannot login, so no BaseUserProfile
@@ -92,6 +95,9 @@ class Patient(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.full_name} ({self.medical_record_number})"
 
 
 # MARK: Surgery
@@ -109,7 +115,7 @@ class SurgeryRequest(models.Model):
         ("neuro", "Neuro"),
         ("ortho", "Orthopedic"),
     ]
-
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     procedure_name = models.CharField(max_length=255)
@@ -141,6 +147,9 @@ class SurgeryRequest(models.Model):
     def is_overdue(self):
         return timezone.now() > self.latest_allowed_time
 
+    def __str__(self):
+        return f"SurgeryRequest {self.id} for {self.patient.full_name}"
+
 
 class SurgerySchedule(models.Model):
     surgery_request = models.OneToOneField(SurgeryRequest, on_delete=models.CASCADE)
@@ -167,12 +176,18 @@ class SurgerySchedule(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Schedule for {self.surgery_request.patient.full_name} in {self.operating_room.name}"
+
 
 class RescheduleEvent(models.Model):
     triggered_by = models.ForeignKey(SurgeryRequest, on_delete=models.CASCADE)
     affected_schedule = models.ForeignKey(SurgerySchedule, on_delete=models.CASCADE)
     reason = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"RescheduleEvent for {self.affected_schedule.surgery_request.patient.full_name} at {self.timestamp}"
 
 
 class SurgeryQueue(models.Model):
@@ -184,12 +199,18 @@ class SurgeryQueue(models.Model):
         help_text="Indicates if the surgery has been escalated due to waiting too long",
     )
 
+    def __str__(self):
+        return f"Queue entry for {self.surgery_request.patient.full_name} with priority {self.current_priority}"
+
 
 # requirement because must be approved
 class SurgeryEquipmentRequirement(models.Model):
     surgery_request = models.ForeignKey(SurgeryRequest, on_delete=models.CASCADE)
     equipment = models.ForeignKey("Equipment", on_delete=models.CASCADE)
     quantity_required = models.IntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.quantity_required} x {self.equipment.name} for {self.surgery_request.patient.full_name}"
 
 
 # MARK: Equipment
@@ -202,6 +223,9 @@ class Equipment(models.Model):
     location = models.CharField(max_length=100)
     is_available = models.BooleanField(default=True)
 
+    def __str__(self):
+        return f"{self.name} ({self.equipment_type}) in {self.location}"
+
 
 class EquipmentSterilization(models.Model):
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
@@ -210,6 +234,9 @@ class EquipmentSterilization(models.Model):
 
     def is_valid(self):
         return timezone.now() <= self.valid_until
+
+    def __str__(self):
+        return f"Sterilization record for {self.equipment.name} at {self.sterilized_at}"
 
 
 # MARK: Notifications
@@ -224,3 +251,6 @@ class Notification(models.Model):
     )
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification for {self.base_profile.django_user.get_username()} - {self.severity}"
