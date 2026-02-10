@@ -42,8 +42,6 @@ const Login = () => {
                 <h1 style={styles.title}>Hospital OR Scheduler</h1>
                 <p style={styles.subtitle}>Intelligent Operating Room Management</p>
 
-                <div style={styles.divider}>OR</div>
-
                 <form onSubmit={handleSubmit(onSubmit)} style={styles.form}>
                     <div style={styles.formGroup}>
                         <label style={styles.label}>Username</label>
@@ -82,10 +80,6 @@ const Login = () => {
                         {loading ? 'Logging in...' : 'Login'}
                     </button>
                 </form>
-
-                <p style={styles.footer}>
-                    Secured with JWT & HttpOnly Cookies 🔒
-                </p>
             </div>
         </div>
     );
