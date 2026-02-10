@@ -1,13 +1,10 @@
 from django.urls import path
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import TokenRefreshView
 
-from core.views import ProtectedView
+from core.views import UserRoleView, RoleTokenObtainPairView
 
 urlpatterns: list = [
-    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/", RoleTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("api/protected/", ProtectedView.as_view(), name="protected"),
+    path("api/user-role/", UserRoleView.as_view(), name="user_role"),
 ]

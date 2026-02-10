@@ -44,7 +44,7 @@ class OperatingRoom(models.Model):
 
 
 class BaseUserProfile(models.Model):
-    django_user = models.OneToOneField(User, on_delete=models.CASCADE)
+    django_user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="baseuserprofile")
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, null=True)
     role = models.CharField(
         max_length=30,

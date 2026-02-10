@@ -132,3 +132,6 @@ SIMPLE_JWT: dict[str, object] = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
+CSRF_COOKIE_HTTPONLY = False  # frontend can read CSRF token
+SESSION_COOKIE_HTTPONLY = True
