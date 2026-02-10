@@ -3,15 +3,48 @@
 import { useAuth } from '../../context/AuthContext';
 import { useHospital } from '../../context/HospitalContext';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { authAPI } from '../../api/auth.api';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
     const { hospitalName } = useHospital();
     const navigate = useNavigate();
+    const [loggingOut, setLoggingOut] = useState(false);
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
+    const handleLogout = async () => {
+        setLoggingOut(true);
+        try {
+            console.log('🚪 Logout initiated');
+
+            // Try to call logout API (optional, backend might not have this)
+            try {
+                await authAPI.logout();
+                console.log('✅ Backend logout successful');
+            } catch (err) {
+                console.warn('⚠️ Backend logout failed (might not exist), clearing local auth', err);
+            }
+
+            // Clear auth state in context
+            logout();
+            console.log('🗑️ Cleared local auth state');
+
+            // Clear localStorage completely
+            localStorage.clear();
+            console.log('🗑️ Cleared localStorage');
+
+            // Redirect to login
+            console.log('📍 Redirecting to /login');
+            navigate('/login', { replace: true });
+        } catch (err) {
+            console.error('❌ Logout error:', err);
+            // Force logout anyway
+            logout();
+            localStorage.clear();
+            navigate('/login', { replace: true });
+        } finally {
+            setLoggingOut(false);
+        }
     };
 
     return (
@@ -30,13 +63,18 @@ const Navbar = () => {
                     <span style={styles.userName}>{user?.name || user?.username}</span>
                     <span style={styles.userRole}>{user?.role}</span>
                 </div>
-                <button onClick={handleLogout} style={styles.logoutButton}>
-                    Logout
+                <button
+                    onClick={handleLogout}
+                    style={styles.logoutButton}
+                    disabled={loggingOut}
+                >
+                    {loggingOut ? 'Logging out...' : 'Logout'}
                 </button>
             </div>
         </div>
     );
 };
+
 
 const styles = {
     navbar: {

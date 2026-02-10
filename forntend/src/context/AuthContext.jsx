@@ -30,9 +30,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
+        console.log('🔓 AuthContext.logout() called');
         setUser(null);
         setToken(null);
         storage.clearAll();
+        console.log('✅ Auth state cleared in context');
     };
 
     const value = {
