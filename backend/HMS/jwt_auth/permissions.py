@@ -8,30 +8,15 @@ class IsRole(BasePermission):
     Permission class to check if user has a required role
     """
 
-    required_roles: list[str] = []
-
     def has_permission(self, request, view):
         try:
             user_role = request.user.baseuserprofile.role
         except AttributeError:
             return False
-        return user_role in self.required_roles
 
+        required_roles = getattr(view, "required_roles", [])
+        if not required_roles:  # No roles specified, allow all
+            return True
 
-class HasHospitalHeader(BasePermission):
-    """
-    Ensures the request includes a valid X-Hospital-ID header.
-    """
+        return user_role in required_roles
 
-    def has_permission(self, request: Request, view) -> bool:
-        hospital_id = request.headers.get("X-Hospital-ID")
-        if not hospital_id:
-            return False
-
-        try:
-            # Validate UUID format
-            UUID(hospital_id, version=4)
-        except ValueError:
-            return False
-
-        return True
