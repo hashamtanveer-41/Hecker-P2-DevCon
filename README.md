@@ -1,61 +1,26 @@
-🏥 Hospital Management & Surgery Scheduling System
-An intelligent, React-based enterprise solution designed to streamline hospital operations, manage medical staff, and optimize surgical scheduling through an automated, constraint-aware engine.
+# 🏥 Hospital Management & Surgery Scheduling System
 
-🚀 Overview
-This application provides a comprehensive suite of tools for hospital administrators and medical staff to manage the lifecycle of surgical procedures—from initial request and equipment sterilization to automated scheduling and audit logging.
+An intelligent, React-based enterprise solution designed to streamline hospital operations.
 
-✨ Key Features
-📊 Centralized Dashboard
-Get real-time insights into hospital operations, including the number of active Operating Rooms (ORs), available staff, pending surgery requests, and today's schedule.
+## ✨ Key Features
 
-🤖 Intelligent Scheduler
-The core engine of the system that automates surgery assignments by checking:
+* **📊 Centralized Dashboard:** Get real-time insights into hospital operations, including **active Operating Rooms**, **available staff**, and **pending requests**.
+* **🤖 Intelligent Scheduler:** An automated engine that assigns surgeries based on **Surgeon Specialty**, **OR availability**, and **equipment sterilization status**.
+* **🚨 Emergency Handling:** Features a dedicated **Emergency Schedule** function that prioritizes critical cases and automatically reshuffles lower-priority bookings.
+* **📋 Priority Queue:** A real-time monitoring system that tracks patient waiting times and categorizes cases by **Urgency Levels**.
 
-Surgeon Match: Ensures the right specialist is assigned to the procedure.
+---
 
-OR Availability: Prevents double-booking of surgical suites.
+## 🚀 Getting Started
 
-Equipment Verification: Validates that necessary tools are sterilized and available.
+1. **Select a Hospital:** Start by choosing your facility from the **Hospitals** page.
+2. **Manage Staff:** Ensure all surgeons and nurses are registered in the **Staff** section.
+3. **Log Requests:** Add new procedures via the **Surgery Requests** portal.
+4. **Run Scheduler:** Navigate to the **Scheduler** to generate the daily plan.
 
-Emergency Handling: Includes a dedicated "Emergency Schedule" function to prioritize critical cases and automatically adjust lower-priority bookings.
+## 🛠️ Technical Specifications
 
-📋 Surgery & Queue Management
-Surgery Requests: Create and track surgery requests with detailed metadata such as complexity level, estimated duration, and required equipment.
-
-Priority Queue: A real-time queue that monitors patient waiting times and categorizes cases by urgency (Emergency, Urgent, Normal).
-
-🏥 Resource Management
-Hospital Selection: Multi-hospital support allows users to select and manage different facilities.
-
-Operating Rooms (OR): Track OR capabilities and statuses.
-
-Medical Staff: Manage staff profiles, specialties, and maximum daily work hours.
-
-Equipment Tracking: Monitor sterilization cycles and maintenance status of surgical equipment.
-
-🗓️ Calendar & Auditing
-Visual Calendar: View schedules in both daily and weekly formats.
-
-Audit Logs: A complete history of system actions (Create, Update, Delete, Login) with filtering capabilities for accountability and security.
-
-🛠️ Tech Stack
-Frontend: React.js
-
-State Management: Context API (HospitalContext)
-
-Form Handling: React Hook Form
-
-Styling: Custom CSS-in-JS and modern gradients
-
-API Layer: Modular API services (syncAPI, schedulerAPI, orAPI, etc.)
-
-📂 Project Structure
-Plaintext
-src/
-├── api/             # Modular API service handlers
-├── context/         # HospitalContext for global state
-├── pages/           # Page components (Dashboard, Staff, Scheduler, etc.)
-├── utils/           # Global constants and helper functions
-└── App.js           # Root component and routing
-⚙️ Future Implementation
-The project is currently configured with a mock data API for development. Ready-to-use hooks for axiosInstance and API_ENDPOINTS are included in the source code to facilitate a seamless transition to a live backend.
+* **Frontend Framework:** React.js
+* **Data Handling:** Context API with **HospitalContext**
+* **Form Validation:** React Hook Form
+* **Audit Logging:** Tracks every **Create**, **Update**, and **Login** event for security.
