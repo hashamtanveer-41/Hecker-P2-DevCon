@@ -1,9 +1,9 @@
 // src/context/AuthContext.jsx
 
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { storage } from '../utils/storage';
 
-export const AuthContext = createContext(null);
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -30,11 +30,9 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        console.log('🔓 AuthContext.logout() called');
         setUser(null);
         setToken(null);
         storage.clearAll();
-        console.log('✅ Auth state cleared in context');
     };
 
     const value = {
@@ -47,4 +45,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within AuthProvider');
+    }
+    return context;
 };
