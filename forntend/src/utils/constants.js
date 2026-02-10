@@ -54,9 +54,9 @@ export const REQUEST_STATUS = {
 
 // Roles
 export const ROLES = {
-    HOSPITAL_ADMIN: 'HOSPITAL_ADMIN',
-    OR_MANAGER: 'OR_MANAGER',
-    SURGEON: 'SURGEON',
-    SCHEDULER: 'SCHEDULER',
-    NURSE: 'NURSE',
+    HOSPITAL_ADMIN: 'admin',
+    OR_MANAGER: 'room_manager',
+    SURGEON: 'surgeon',
+    SCHEDULER: 'scheduler',
+    NURSE: 'nurse',
 };

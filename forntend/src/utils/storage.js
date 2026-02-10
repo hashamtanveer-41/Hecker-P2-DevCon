@@ -1,15 +1,15 @@
 export const storage = {
     // Token management
     setToken: (token) => {
-        localStorage.setItem('token', token);
+        localStorage.setItem('access', token);
     },
 
     getToken: () => {
-        return localStorage.getItem('token');
+        return localStorage.getItem('access');
     },
 
     removeToken: () => {
-        localStorage.removeItem('token');
+        localStorage.removeItem('access');
     },
 
     // Hospital management
