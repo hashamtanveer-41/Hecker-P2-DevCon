@@ -51,8 +51,8 @@ class LoginView(APIView):
             key="refresh_token",
             value=str(refresh),
             httponly=True,
-            secure=True,  # set True in production
-            samesite="Strict",
+            secure=False,  # MUST be False on http
+            samesite="Lax",  # NOT Strict for cross-origin dev
             max_age=7 * 24 * 60 * 60,  # 7 days, match your refresh token lifetime
         )
         return response

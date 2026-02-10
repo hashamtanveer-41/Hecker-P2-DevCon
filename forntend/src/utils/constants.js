@@ -1,60 +1,41 @@
 // src/utils/constants.js
 
-export const API_BASE_URL = 'http://localhost:8000'; // ← CHANGE THIS to your backend URL
-export const WS_URL = 'ws://localhost:8000/ws/notifications'; // ← WebSocket URL
+export const API_BASE_URL = "http://127.0.0.1:8000";
+export const WS_URL = "ws://localhost:8000/ws/notifications";
 
 // API Endpoints
 export const API_ENDPOINTS = {
-    // Auth
-    AUTH_REGISTER: '/auth/webauthn/register',
-    AUTH_LOGIN: '/auth/webauthn/login/verify',
-    AUTH_LOGOUT: '/auth/logout',
+    // Auth (jwt_auth app)
+    AUTH_LOGIN: "/api/v1/auth/login/",
+    AUTH_LOGOUT: "/api/v1/auth/logout/",
+    AUTH_TOKEN: "/api/v1/auth/token/",
+    AUTH_TOKEN_REFRESH: "/api/v1/auth/token/refresh/",
 
     // Hospitals
-    HOSPITALS: '/hospitals',
-    HOSPITAL_BY_ID: (id) => `/hospitals/${id}`,
+    HOSPITALS: "/api/v1/hospitals/",
+    HOSPITAL_BY_ID: (id) => `/api/v1/hospitals/${id}/`,
 
     // Operating Rooms
-    OPERATING_ROOMS: '/operating-rooms',
-    OR_BY_ID: (id) => `/operating-rooms/${id}`,
+    OPERATING_ROOMS: "/api/v1/operating-rooms/",
+    OR_BY_ID: (id) => `/api/v1/operating-rooms/${id}/`,
 
     // Staff
-    STAFF: '/staff',
-    STAFF_BY_ID: (id) => `/staff/${id}`,
-    STAFF_AVAILABILITY: (id) => `/staff/${id}/availability`,
+    STAFF: "/api/v1/staff/",
+    STAFF_BY_ID: (id) => `/api/v1/staff/${id}/`,
 
     // Equipment
-    EQUIPMENT: '/equipment',
-    EQUIPMENT_BY_ID: (id) => `/equipment/${id}`,
-    EQUIPMENT_STERILIZE: (id) => `/equipment/${id}/sterilize`,
+    EQUIPMENT: "/api/v1/equipment/",
+    EQUIPMENT_BY_ID: (id) => `/api/v1/equipment/${id}/`,
 
     // Surgery Requests
-    SURGERY_REQUESTS: '/surgery-requests',
-    SURGERY_REQUEST_BY_ID: (id) => `/surgery-requests/${id}`,
-    SURGERY_REQUEST_APPROVE: (id) => `/surgery-requests/${id}/approve`,
-
-    // Scheduler
-    SCHEDULER_RUN: '/scheduler/run',
-    SCHEDULER_EMERGENCY: '/scheduler/emergency',
+    SURGERY_REQUESTS: "/api/v1/surgery-requests/",
+    SURGERY_REQUEST_BY_ID: (id) => `/api/v1/surgery-requests/${id}/`,
 
     // Schedule
-    SCHEDULE: '/schedule',
-    SCHEDULE_BY_ID: (id) => `/schedule/${id}`,
-    SCHEDULE_RESCHEDULE: (id) => `/schedule/${id}/reschedule`,
-
-    // Calendar
-    CALENDAR_DAY: '/calendar/day',
-    CALENDAR_WEEK: '/calendar/week',
-
-    // Priority Queue
-    PRIORITY_QUEUE: '/priority-queue',
-
-    // Sync
-    SYNC_PUSH: '/sync/push',
-
-    // Audit Logs
-    AUDIT_LOGS: '/audit-logs',
+    SCHEDULE: "/api/v1/schedule/",
+    SCHEDULE_BY_ID: (id) => `/api/v1/schedule/${id}/`,
 };
+
 
 // Priority Levels
 export const PRIORITY_LEVELS = {
