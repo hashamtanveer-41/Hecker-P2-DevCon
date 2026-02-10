@@ -4,6 +4,7 @@ from rest_framework import status, viewsets, views
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from jwt_auth.permissions import IsRole
 from core.models import Hospital
@@ -13,11 +14,10 @@ from core.serializers import HospitalSerializer
 class BaseLoggedInView(views.APIView):
     """
     Base view for logged-in users using ViewSets.
-
-    Requires JWT Token and role enforcement.
     All actions disabled by default.
     """
 
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsRole]
     required_roles: list = []  # To be set by subclasses
     role = "unknown"
@@ -65,11 +65,10 @@ class MyInfoView(BaseLoggedInView):
 class BaseLoggedInViewSet(viewsets.ViewSet):
     """
     Base view for logged-in users using ViewSets.
-
-    Requires JWT Token and role enforcement.
     All actions disabled by default.
     """
 
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsRole]
     required_roles: list = []  # To be set by subclasses
     role = "unknown"
