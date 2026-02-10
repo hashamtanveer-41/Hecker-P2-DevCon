@@ -1,24 +1,3 @@
-# Hospital Operating Room Scheduler – API Specification
-
-**Role Model:** Admin Only  
-**Architecture:** Multi-Tenant, REST + WebSocket, Offline-First  
-**API Version:** v1
-
----
-
-## 1. System Overview
-
-This system provides an intelligent Operating Room (OR) scheduling platform for hospitals, optimizing surgical utilization while respecting medical, staff, equipment, and emergency constraints.
-
-All actions are performed by a single privileged role:
-
-**ADMIN** – Full access to hospitals, staff, scheduling, resources, and emergency overrides.
-
----
-
-## 2. Global API Conventions
-
-### Base URL
 
 ```
 

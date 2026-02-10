@@ -5,26 +5,33 @@ from .serializers import RoleTokenObtainPairSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsRole
+from .permissions import HasHospitalHeader, IsRole
 
 
 class RoleTokenObtainPairView(TokenObtainPairView):
     serializer_class = RoleTokenObtainPairSerializer
 
 
+class MyInfoView(APIView):
+    """
+    Returns the role of the authenticated user.
+    Requires JWT and X-Hospital-ID header.
+    """
 
-class UserRoleView(APIView):
-    """
-    Returns the role of the currently authenticated user.
-    """
-    permission_classes: list = [IsAuthenticated]
+    permission_classes: list = [IsAuthenticated, HasHospitalHeader]
 
     def get(self, request: Request) -> Response:
         try:
             role = request.user.baseuserprofile.role
         except AttributeError:
             role = "unknown"
-        return Response({
-            "username": request.user.username,
-            "role": role
-        })
+
+        hospital_id = request.headers.get("X-Hospital-ID")
+
+        return Response(
+            {
+                "username": request.user.username,
+                "role": role,
+                "hospital_id": hospital_id,
+            }
+        )
