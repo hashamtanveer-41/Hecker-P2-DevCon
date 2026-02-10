@@ -1,5 +1,3 @@
-// src/auth/Login.jsx
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -18,50 +16,21 @@ const Login = () => {
         setError('');
 
         try {
-            // Call login API
-            const response = await authAPI.login(data.username);
+            const response = await authAPI.login(
+                data.username,
+                data.password
+            );
 
-            // Extract token and user from response
-            const token = response.token;
-            const user = response.user || {
+            const token = response.access;
+            const user = {
                 username: data.username,
-                role: 'HOSPITAL_ADMIN',
-                name: data.username,
-            };
-
-            // Save to context and storage
-            login(user, token);
-
-            // Redirect to dashboard
-            navigate('/dashboard');
-        } catch (err) {
-            console.error('Login error:', err);
-            setError(err.message || 'Login failed. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleBiometricLogin = async () => {
-        setLoading(true);
-        setError('');
-
-        try {
-            // Quick dev login - automatically logs in as demo user
-            const response = await authAPI.login('demo_user');
-
-            const token = response.token;
-            const user = response.user || {
-                username: 'demo_user',
-                role: 'HOSPITAL_ADMIN',
-                name: 'Demo User',
+                role: response.role,
             };
 
             login(user, token);
             navigate('/dashboard');
         } catch (err) {
-            console.error('Login error:', err);
-            setError(err.message || 'Login failed. Please try again.');
+            setError(err.detail || 'Login failed');
         } finally {
             setLoading(false);
         }
@@ -73,18 +42,8 @@ const Login = () => {
                 <h1 style={styles.title}>Hospital OR Scheduler</h1>
                 <p style={styles.subtitle}>Intelligent Operating Room Management</p>
 
-                {/* Biometric Button */}
-                <button
-                    type="button"
-                    onClick={handleBiometricLogin}
-                    style={styles.biometricButton}
-                >
-                    🔐 Login with Biometrics
-                </button>
-
                 <div style={styles.divider}>OR</div>
 
-                {/* Login Form */}
                 <form onSubmit={handleSubmit(onSubmit)} style={styles.form}>
                     <div style={styles.formGroup}>
                         <label style={styles.label}>Username</label>
@@ -92,16 +51,25 @@ const Login = () => {
                             type="text"
                             {...register('username', { required: 'Username is required' })}
                             style={styles.input}
-                            placeholder="Enter username"
                         />
                         {errors.username && (
                             <span style={styles.error}>{errors.username.message}</span>
                         )}
                     </div>
 
-                    {error && (
-                        <div style={styles.errorBox}>{error}</div>
-                    )}
+                    <div style={styles.formGroup}>
+                        <label style={styles.label}>Password</label>
+                        <input
+                            type="password"
+                            {...register('password', { required: 'Password is required' })}
+                            style={styles.input}
+                        />
+                        {errors.password && (
+                            <span style={styles.error}>{errors.password.message}</span>
+                        )}
+                    </div>
+
+                    {error && <div style={styles.errorBox}>{error}</div>}
 
                     <button
                         type="submit"
@@ -116,14 +84,12 @@ const Login = () => {
                 </form>
 
                 <p style={styles.footer}>
-                    Secured with WebAuthn & FIDO2 🔒
+                    Secured with JWT & HttpOnly Cookies 🔒
                 </p>
             </div>
         </div>
     );
 };
-
-// Simple inline styles (we'll replace with Tailwind later)
 const styles = {
     container: {
         display: 'flex',
@@ -218,5 +184,4 @@ const styles = {
         marginTop: '20px',
     },
 };
-
 export default Login;

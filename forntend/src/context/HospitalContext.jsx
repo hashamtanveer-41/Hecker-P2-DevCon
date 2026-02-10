@@ -26,7 +26,7 @@ export const HospitalProvider = ({ children }) => {
                 }
             });
         }
-    }, []);
+    }, [hospitalId]);
 
     const setHospitalId = (id, name = '') => {
         setHospitalIdState(id);

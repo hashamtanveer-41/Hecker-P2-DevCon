@@ -1,318 +1,238 @@
-// src/pages/Staff.jsx
-
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { useHospital } from '../context/HospitalContext';
-import { staffAPI } from '../api/staff.api';
-// Backend imports (uncomment when backend is ready):
-// import axiosInstance from '../api/axios';
-// import { API_ENDPOINTS } from '../utils/constants';
+import React, { useState } from 'react';
+import {
+    Add, Close, HealthAndSafety, Person,
+    Schedule, CheckCircle
+} from '@mui/icons-material';
 
 const Staff = () => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm();
-    const { hospitalId } = useHospital();
-    const [staff, setStaff] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [staff, setStaff] = useState([
+        { id: 1, name: 'Dr. Sarah Mitchell', role: 'SURGEON', specialization: 'Cardiology', max_hours_per_day: 12, is_available: true },
+        { id: 2, name: 'Dr. James Wilson', role: 'SURGEON', specialization: 'Neurology', max_hours_per_day: 10, is_available: false },
+        { id: 3, name: 'Dr. Emily Chen', role: 'ANESTHESIOLOGIST', specialization: 'General Anesthesia', max_hours_per_day: 12, is_available: true },
+        { id: 4, name: 'Nurse Rachel Green', role: 'NURSE', specialization: 'OR Nursing', max_hours_per_day: 8, is_available: true },
+        { id: 5, name: 'Tech. Mark Davis', role: 'TECHNICIAN', specialization: 'Surgical Equipment', max_hours_per_day: 8, is_available: true },
+    ]);
     const [showForm, setShowForm] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        role: '',
+        specialization: '',
+        max_hours_per_day: 12
+    });
 
-    useEffect(() => {
-        if (hospitalId) {
-            fetchStaff();
-        }
-    }, [hospitalId]);
 
-    const fetchStaff = async () => {
-        try {
-            // Using mock data API
-            const response = await staffAPI.getAll();
-            setStaff(response.data || response);
-
-            // Backend implementation (uncomment when backend is ready):
-            // const response = await axiosInstance.get(API_ENDPOINTS.STAFF);
-            // setStaff(response.data);
-        } catch (error) {
-            console.error('Error fetching staff:', error);
-        }
+    const getRoleColor = (role) => {
+        const colors = {
+            'SURGEON': 'from-violet-500 to-purple-600',
+            'ANESTHESIOLOGIST': 'from-emerald-500 to-teal-600',
+            'NURSE': 'from-cyan-500 to-blue-600',
+            'TECHNICIAN': 'from-amber-500 to-orange-600'
+        };
+        return colors[role] || 'from-slate-500 to-slate-600';
     };
 
-    const onSubmit = async (data) => {
-        if (!hospitalId) {
-            alert('Please select a hospital first!');
-            return;
-        }
-
+    const handleSubmit = (e) => {
+        e.preventDefault();
         setLoading(true);
-        try {
-            const payload = {
-                ...data,
-                max_hours_per_day: parseInt(data.max_hours_per_day),
-            };
-
-            // Using mock data API
-            const response = await staffAPI.create(payload);
-            setStaff([...staff, response]);
-
-            // Backend implementation (uncomment when backend is ready):
-            // const response = await axiosInstance.post(API_ENDPOINTS.STAFF, payload);
-            // setStaff([...staff, response.data]);
-
-            reset();
+        setTimeout(() => {
+            setStaff([...staff, { id: staff.length + 1, ...formData, is_available: true }]);
             setShowForm(false);
-            alert('Staff member created successfully!');
-        } catch (error) {
-            console.error('Error creating staff:', error);
-            alert('Failed to create staff member');
-        } finally {
+            setFormData({ name: '', role: '', specialization: '', max_hours_per_day: 12 });
             setLoading(false);
-        }
+        }, 1000);
     };
 
     return (
-        <div style={styles.container}>
-            <div style={styles.header}>
-                <h1 style={styles.title}>Staff Management</h1>
+        <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 p-8 font-['Outfit',sans-serif]">
+            {/* Header Section */}
+            <div className="mb-12 flex items-center justify-between gap-6">
+                <div className="flex-1">
+                    <h1 className="text-4xl font-bold bg-linear-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2">
+                        Staff Management
+                    </h1>
+                    <p className="text-slate-500">Manage hospital surgical staff and their schedules</p>
+                </div>
+
                 <button
                     onClick={() => setShowForm(!showForm)}
-                    style={styles.addButton}
-                    disabled={!hospitalId}
+                    className="flex items-center justify-center gap-2 px-16 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl hover:shadow-2xl hover:shadow-cyan-500/30 transition-all duration-300 hover:scale-105 font-semibold whitespace-nowrap min-w-fit"
                 >
-                    {showForm ? 'Cancel' : '+ Add Staff'}
+                    {showForm ? <Close /> : <Add />}
+                    {showForm ? 'Cancel' : 'Add Staff Member'}
                 </button>
             </div>
 
-            {!hospitalId && (
-                <div style={styles.warning}>
-                    ⚠️ Please select a hospital from the Hospitals page first!
-                </div>
-            )}
+            {/* Stats Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
+                {[
+                    { label: 'Total Staff', value: staff.length, icon: Person, color: 'from-cyan-500 to-blue-600' },
+                    { label: 'Surgeons', value: staff.filter(s => s.role === 'SURGEON').length, icon: HealthAndSafety, color: 'from-violet-500 to-purple-600' },
+                    { label: 'Available', value: staff.filter(s => s.is_available).length, icon: CheckCircle, color: 'from-emerald-500 to-teal-600' },
+                    { label: 'On Duty', value: staff.filter(s => !s.is_available).length, icon: Schedule, color: 'from-rose-500 to-pink-600' }
+                ].map((stat, index) => {
+                    const Icon = stat.icon;
+                    return (
+                        <div key={index} className="bg-white rounded-3xl p-10 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-slate-100 group cursor-pointer flex flex-col items-center justify-center text-center">
+                            <div className={`w-16 h-16 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center shadow-xl transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 mb-6`}>
+                                <Icon className="text-white" style={{ fontSize: '32px' }} />
+                            </div>
+                            <h3 className="text-4xl font-bold text-slate-800 mb-3">{stat.value}</h3>
+                            <p className="text-slate-500 font-medium text-lg">{stat.label}</p>
+                        </div>
+                    );
+                })}
+            </div>
 
-            {showForm && hospitalId && (
-                <div style={styles.formCard}>
-                    <h3 style={styles.formTitle}>Add New Staff Member</h3>
-                    <form onSubmit={handleSubmit(onSubmit)} style={styles.form}>
-                        <div style={styles.formGroup}>
-                            <label style={styles.label}>Name *</label>
-                            <input
-                                type="text"
-                                {...register('name', { required: 'Name is required' })}
-                                style={styles.input}
-                                placeholder="e.g., Dr. John Smith"
-                            />
-                            {errors.name && <span style={styles.error}>{errors.name.message}</span>}
+            {/* Form Section */}
+            {showForm && (
+                <div className="bg-white rounded-3xl p-10 shadow-lg border border-slate-100 mb-16">
+                    <h2 className="text-2xl font-bold text-slate-800 mb-8">Add New Staff Member</h2>
+
+                    <form onSubmit={handleSubmit} className="space-y-12">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-4">
+                                    Name *
+                                </label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={formData.name}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, name: e.target.value })
+                                    }
+                                    className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-cyan-400 focus:bg-white transition-all"
+                                    placeholder="e.g., Dr. John Smith"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-4">
+                                    Role *
+                                </label>
+                                <select
+                                    required
+                                    value={formData.role}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, role: e.target.value })
+                                    }
+                                    className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-cyan-400 focus:bg-white transition-all"
+                                >
+                                    <option value="">Select role</option>
+                                    <option value="SURGEON">Surgeon</option>
+                                    <option value="ANESTHESIOLOGIST">Anesthesiologist</option>
+                                    <option value="NURSE">Nurse</option>
+                                    <option value="TECHNICIAN">Technician</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-4">
+                                    Specialization *
+                                </label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={formData.specialization}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            specialization: e.target.value,
+                                        })
+                                    }
+                                    className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-cyan-400 focus:bg-white transition-all"
+                                    placeholder="e.g., Cardiology"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-4">
+                                    Max Hours/Day *
+                                </label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="16"
+                                    required
+                                    value={formData.max_hours_per_day}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            max_hours_per_day: e.target.value,
+                                        })
+                                    }
+                                    className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-cyan-400 focus:bg-white transition-all"
+                                />
+                            </div>
                         </div>
 
-                        <div style={styles.formGroup}>
-                            <label style={styles.label}>Role *</label>
-                            <select
-                                {...register('role', { required: 'Role is required' })}
-                                style={styles.input}
-                            >
-                                <option value="">Select role</option>
-                                <option value="SURGEON">Surgeon</option>
-                                <option value="ANESTHESIOLOGIST">Anesthesiologist</option>
-                                <option value="NURSE">Nurse</option>
-                                <option value="TECHNICIAN">Technician</option>
-                            </select>
-                            {errors.role && <span style={styles.error}>{errors.role.message}</span>}
-                        </div>
-
-                        <div style={styles.formGroup}>
-                            <label style={styles.label}>Specialization *</label>
-                            <input
-                                type="text"
-                                {...register('specialization', { required: 'Specialization is required' })}
-                                style={styles.input}
-                                placeholder="e.g., Cardiology, Neurology"
-                            />
-                            {errors.specialization && <span style={styles.error}>{errors.specialization.message}</span>}
-                        </div>
-
-                        <div style={styles.formGroup}>
-                            <label style={styles.label}>Max Hours Per Day *</label>
-                            <input
-                                type="number"
-                                {...register('max_hours_per_day', {
-                                    required: 'Max hours is required',
-                                    min: { value: 1, message: 'Must be at least 1' },
-                                    max: { value: 16, message: 'Cannot exceed 16' },
-                                })}
-                                style={styles.input}
-                                placeholder="e.g., 12"
-                                defaultValue={12}
-                            />
-                            {errors.max_hours_per_day && <span style={styles.error}>{errors.max_hours_per_day.message}</span>}
-                        </div>
-
-                        <button type="submit" disabled={loading} style={styles.submitButton}>
-                            {loading ? 'Creating...' : 'Add Staff Member'}
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl font-semibold hover:shadow-2xl hover:shadow-cyan-500/30 transition-all duration-300 hover:scale-105"
+                        >
+                            {loading ? "Adding Staff..." : "Add Staff Member"}
                         </button>
                     </form>
+
                 </div>
             )}
 
-            <div style={styles.tableCard}>
-                <h3 style={styles.tableTitle}>All Staff Members</h3>
-                {staff.length === 0 ? (
-                    <p style={styles.noData}>No staff members found. Add one to get started.</p>
-                ) : (
-                    <table style={styles.table}>
-                        <thead>
-                        <tr>
-                            <th style={styles.th}>ID</th>
-                            <th style={styles.th}>Name</th>
-                            <th style={styles.th}>Role</th>
-                            <th style={styles.th}>Specialization</th>
-                            <th style={styles.th}>Max Hours/Day</th>
-                            <th style={styles.th}>Status</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {staff.map((member) => (
-                            <tr key={member.id} style={styles.tr}>
-                                <td style={styles.td}>{member.id}</td>
-                                <td style={styles.td}>{member.name}</td>
-                                <td style={styles.td}>{member.role}</td>
-                                <td style={styles.td}>{member.specialization}</td>
-                                <td style={styles.td}>{member.max_hours_per_day}</td>
-                                <td style={styles.td}>
-                    <span style={{
-                        ...styles.badge,
-                        backgroundColor: member.is_available ? '#d1fae5' : '#fee2e2',
-                        color: member.is_available ? '#065f46' : '#991b1b',
-                    }}>
-                      {member.is_available ? 'Available' : 'Busy'}
-                    </span>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                )}
+            {/* Staff Grid Section */}
+            <div className="bg-white rounded-3xl p-12 shadow-lg border border-slate-100">
+                <h2 className="text-3xl font-bold text-slate-800 mb-14">All Staff Members</h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-16">
+                    {staff.map((member, index) => {
+                        const roleColor = getRoleColor(member.role);
+
+                        return (
+                            <div
+                                key={member.id}
+                                className="bg-gradient-to-br from-slate-50 to-white rounded-3xl p-12 border border-slate-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-3"
+                                style={{
+                                    animationDelay: `${index * 50}ms`,
+                                    animation: 'fadeInUp 0.5s ease-out forwards'
+                                }}
+                            >
+                                <div className="flex items-start justify-between mb-8">
+                                    <div className={`w-20 h-20 bg-linear-to-br ${roleColor} rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg`}>
+                                        {member.name.split(' ').map(n => n[0]).join('')}
+                                    </div>
+                                    <span className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap ${member.is_available ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                                        {member.is_available ? 'Available' : 'Busy'}
+                                    </span>
+                                </div>
+
+                                <h3 className="text-2xl font-bold text-slate-800 mb-2">{member.name}</h3>
+                                <p className="text-base text-slate-500 mb-8">{member.specialization}</p>
+
+                                <div className="space-y-4 pt-8 border-t border-slate-200">
+                                    <div className="flex justify-between text-base">
+                                        <span className="text-slate-500 font-medium">Role</span>
+                                        <span className="font-bold text-slate-800">{member.role}</span>
+                                    </div>
+                                    <div className="flex justify-between text-base">
+                                        <span className="text-slate-500 font-medium">Max Hours</span>
+                                        <span className="font-bold text-slate-800">{member.max_hours_per_day}h/day</span>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
+
+            <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
         </div>
     );
-};
-
-const styles = {
-    container: {
-        maxWidth: '1200px',
-    },
-    header: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '24px',
-    },
-    title: {
-        fontSize: '28px',
-        fontWeight: 'bold',
-        margin: 0,
-    },
-    addButton: {
-        padding: '10px 20px',
-        backgroundColor: '#3b82f6',
-        color: 'white',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        fontSize: '14px',
-    },
-    warning: {
-        backgroundColor: '#fef3c7',
-        color: '#92400e',
-        padding: '12px 16px',
-        borderRadius: '4px',
-        marginBottom: '24px',
-        fontSize: '14px',
-    },
-    formCard: {
-        backgroundColor: 'white',
-        padding: '24px',
-        borderRadius: '8px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        marginBottom: '24px',
-    },
-    formTitle: {
-        marginTop: 0,
-        marginBottom: '20px',
-        fontSize: '18px',
-    },
-    form: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-    },
-    formGroup: {
-        display: 'flex',
-        flexDirection: 'column',
-    },
-    label: {
-        fontSize: '14px',
-        fontWeight: '500',
-        marginBottom: '6px',
-    },
-    input: {
-        padding: '10px',
-        border: '1px solid #d1d5db',
-        borderRadius: '4px',
-        fontSize: '14px',
-    },
-    error: {
-        color: '#ef4444',
-        fontSize: '12px',
-        marginTop: '4px',
-    },
-    submitButton: {
-        padding: '12px',
-        backgroundColor: '#10b981',
-        color: 'white',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        fontSize: '14px',
-        fontWeight: '500',
-    },
-    tableCard: {
-        backgroundColor: 'white',
-        padding: '24px',
-        borderRadius: '8px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    },
-    tableTitle: {
-        marginTop: 0,
-        marginBottom: '16px',
-        fontSize: '18px',
-    },
-    noData: {
-        textAlign: 'center',
-        color: '#6b7280',
-        padding: '32px',
-    },
-    table: {
-        width: '100%',
-        borderCollapse: 'collapse',
-    },
-    th: {
-        textAlign: 'left',
-        padding: '12px',
-        borderBottom: '2px solid #e5e7eb',
-        fontSize: '14px',
-        fontWeight: '600',
-        color: '#374151',
-    },
-    tr: {
-        borderBottom: '1px solid #e5e7eb',
-    },
-    td: {
-        padding: '12px',
-        fontSize: '14px',
-    },
-    badge: {
-        padding: '4px 8px',
-        borderRadius: '12px',
-        fontSize: '12px',
-        fontWeight: '500',
-    },
 };
 
 export default Staff;
