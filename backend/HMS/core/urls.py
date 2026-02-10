@@ -1,11 +1,13 @@
-from django.urls import path
-
-from core.modules.views.get_requests import GetHospitals
-
+from django.urls import path, include
 from core.views import MyInfoView
 
-urlpatterns: list = [
+from rest_framework.routers import DefaultRouter
+from core.views import HospitalViewSet
+
+router = DefaultRouter()
+router.register(r"hospitals", HospitalViewSet, basename="hospital")
+
+urlpatterns = [
     path("my-info/", MyInfoView.as_view(), name="my_info"),
-    # get requests
-    path("hospitals/get", GetHospitals.as_view(), name="get_hospitals"),
+    path("", include(router.urls)),
 ]
